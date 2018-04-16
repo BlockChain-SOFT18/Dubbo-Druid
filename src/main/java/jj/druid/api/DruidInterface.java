@@ -1,5 +1,7 @@
 package jj.druid.api;
 
+import com.alibaba.druid.pool.DruidDataSource;
+
 public interface DruidInterface {
-    public void fun();
+    public DruidDataSource getDruidDataSource();
 }

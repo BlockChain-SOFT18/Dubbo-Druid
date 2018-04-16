@@ -6,14 +6,70 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://code.alibabatech.com/schema/dubbo
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <!--定义了提供方应用信息，用于计算依赖关系；在 dubbo-admin 或 dubbo-monitor 会显示这个名字，方便辨识-->
-    <dubbo:application name="demotest-provider"/>
-    <!--使用 zookeeper 注册中心暴露服务，注意要先开启 zookeeper-->
-    <dubbo:registry address="zookeeper://119.28.52.87:2181"/>
-    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:application name="demotest-provider" owner="programmer" organization="dubbox"/>
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" timeout="400000"/>
     <dubbo:protocol name="dubbo" port="20880" />
-    <!--使用 dubbo 协议实现定义好的 api.PermissionService 接口-->
+    <dubbo:monitor protocol="registry" />
     <dubbo:service interface="jj.druid.api.DruidInterface" ref="demoService" protocol="dubbo" />
-    <!--具体实现该接口的 bean-->
+
+    <!-- dubbo配置 -->
+
     <bean id="demoService" class="jj.druid.provider.Druid"/>
+
+    <!-- druid配置 -->
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 url、user、password -->
+        <property name="url" value="jdbc:mysql://127.0.0.1:3306/test?useSSL=true" />
+        <property name="username" value="root" />
+        <property name="password" value="GbaO/kVRY3aNd7eRkF5qFVQfWSTUsVeN+AYoN6MudOWHgkl3lgmhKJha9jlknHu5BgYANoLo6ljy7x9+SOhUQA==" />
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1" />
+        <property name="minIdle" value="1" />
+        <property name="maxActive" value="20" />
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+
+        <property name="validationQuery" value="SELECT 'x'" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+
+        <!-- 配置监控统计拦截的filters -->
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter" />
+                <ref bean="wall-filter"/>
+            </list>
+        </property>
+
+        <!-- 合并多个DruidDataSource的监控数据 -->
+        <property name="useGlobalDataSourceStat" value="true" />
+
+        <property name="filters" value="config" />
+        <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJ8Epr72F2n5s2hcsNeCKuyZBS71BeMKVTP1jCYCue+6D2grZC/REAlUt1e58Ieo7biqoctrJy0lvjVlSNBEC68CAwEAAQ==" />
+    </bean>
+
+    <!-- druid过滤器配置 -->
+
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="true" />
+        <property name="slowSqlMillis" value="1000" />
+        <property name="logSlowSql" value="true" />
+    </bean>
+    <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+        <property name="dbType" value="mysql" />
+    </bean>
 </beans>
