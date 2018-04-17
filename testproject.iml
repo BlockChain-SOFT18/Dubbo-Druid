@@ -20,6 +20,10 @@
         <fileset id="fileset" name="Beans" removed="false">
           <file>file://$MODULE_DIR$/src/Beans.xml</file>
           <file>file://$MODULE_DIR$/src/main/resources/Beans.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/Druid.xml</file>
+        </fileset>
+        <fileset id="fileset2" name="Beans Consumer" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/Beans-consumer.xml</file>
         </fileset>
       </configuration>
     </facet>

@@ -1,0 +1,59 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- druid配置 -->
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 url、user、password -->
+        <property name="url" value="jdbc:mysql://127.0.0.1:3306/test?useSSL=true" />
+        <property name="username" value="root" />
+        <property name="password" value="O/74/+Vkw9e0hxKGnct4gQhiQ9IuhhDm9Q37Oqb6/Fzf1SXD0tOquwV8Uyiy/nT5PbggREiRiq/c2Hn+CpX3Pw==" />
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1" />
+        <property name="minIdle" value="1" />
+        <property name="maxActive" value="20" />
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+
+        <!-- 配置监控统计拦截的filters -->
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter" />
+                <ref bean="wall-filter" />
+            </list>
+        </property>
+
+        <property name="filters" value="config" />
+        <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMtBu74jiBZs3pXCWPgzq9DdJCvAJ/UVtI/K8KxaZt0NUKQaMpv3/E03G/GwStgqC5hl3Ew2PZPWoE+4yw955a8CAwEAAQ==" />
+
+        <!-- 合并多个DruidDataSource的监控数据 -->
+        <property name="useGlobalDataSourceStat" value="true" />
+
+    </bean>
+
+    <!-- druid过滤器配置 -->
+
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="true" />
+        <property name="slowSqlMillis" value="1000" />
+        <property name="logSlowSql" value="true" />
+    </bean>
+    <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+        <property name="dbType" value="mysql" />
+    </bean>
+
+</beans>
