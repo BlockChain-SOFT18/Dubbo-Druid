@@ -1,8 +1,7 @@
 package jj.druid.provider;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import jj.druid.api.DruidInterface;
-import org.springframework.context.ApplicationContext;
+import jj.druid.api.Druid;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.sql.ResultSet;
@@ -14,19 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Druid implements DruidInterface {
+public class DruidImpl implements Druid {
 
     DruidDataSource druidDataSource;
     Statement statement;
-
-    public Druid() {
-        init();
-    }
-
-    public void init() {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Druid.xml");
-        druidDataSource = (DruidDataSource) context.getBean("dataSource");
-    }
 
     public boolean execute(String sql) throws SQLException {
         statement = druidDataSource.getConnection().createStatement();
@@ -60,7 +50,8 @@ public class Druid implements DruidInterface {
         statement.close();
         return n;
     }
-    public DruidDataSource getDruidDataSource() {
-        return druidDataSource;
+
+    public void setDruidDataSource(DruidDataSource druidDataSource) {
+        this.druidDataSource = druidDataSource;
     }
 }

@@ -7,13 +7,24 @@
        http://code.alibabatech.com/schema/dubbo
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <dubbo:application name="druid-provider" owner="jj" organization="buaa"/>
-    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:registry address="zookeeper://140.143.4.171:2181"/>
     <dubbo:protocol name="dubbo" port="20880" />
     <dubbo:monitor protocol="registry" />
-    <dubbo:service interface="jj.druid.api.DruidInterface" ref="druidService" protocol="dubbo" />
+    <dubbo:service interface="jj.druid.api.Druid" ref="druidService"/>
+    <dubbo:service interface="jj.druid.api.AccountService" ref="accountService"/>
 
     <!-- dubbo配置 -->
 
-    <bean id="druidService" class="jj.druid.provider.Druid"/>
+    <bean id="accountService" class="jj.druid.provider.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao" />
+    </bean>
+
+    <bean id="accountDao" class="jj.druid.provider.AccountDao">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="druidService" class="jj.druid.provider.DruidImpl">
+        <property name="druidDataSource" ref="dataSource" />
+    </bean>
 
 </beans>
