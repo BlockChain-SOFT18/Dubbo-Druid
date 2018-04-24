@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jj.druid.mybatis">
+    <cache type="org.mybatis.caches.redis.RedisCache" />
+    <select id="selectAll" resultMap="User">
+        SELECT * FROM test
+    </select>
+
+    <resultMap id="User" type="jj.druid.mybatis.User">
+        <id property="id" column="id" />
+        <id property="username" column="username" />
+    </resultMap>
+
+</mapper>
