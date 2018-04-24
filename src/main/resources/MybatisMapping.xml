@@ -13,4 +13,8 @@
         <id property="username" column="username" />
     </resultMap>
 
+    <update id="update">
+        UPDATE test.test SET name = '2'
+    </update>
+
 </mapper>
