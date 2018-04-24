@@ -7,9 +7,9 @@ import java.util.List;
 
 public class test {
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"Druid.xml","Mybatis.xml","Dubbo.xml"});
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("Consumer.xml");
         context.start();
-        AccountService accountService = (AccountService) context.getBean("accountService");
+        AccountService accountService = (AccountService) context.getBean(AccountService.class);
         accountService.exampleFunction();
     }
 }
