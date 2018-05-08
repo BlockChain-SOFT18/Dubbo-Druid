@@ -76,6 +76,43 @@
         WHERE userID = #{userID}
     </update>
 
+    <select id="selectUser" resultType="map">
+        SELECT *
+        FROM userinformation
+        WHERE userID = #{userID}
+    </select>
+
+    <select id="selectUserIdentity" resultType="int">
+        SELECT IFNULL(MAX(UserID),-1)
+        FROM userinformation
+        WHERE userName = #{userName}
+        AND userIdentity = #{userIdentity}
+    </select>
+
+    <select id="selectAgency" resultType="map">
+        SELECT *
+        FROM agencyinformation
+        WHERE agencyID = #{agencyID}
+    </select>
+
+    <select id="selectAgencyUser" resultType="integer">
+        SELECT userID
+        FROM userinformation
+        WHERE agency = #{agency}
+    </select>
+
+    <update id="updateIsFrozen">
+        UPDATE userinformation
+        SET isFrozen = #{isFrozen}
+        WHERE userID = #{userID}
+    </update>
+
+    <update id="changeBalance">
+        UPDATE userinformation
+        SET availableBalance = availableBalance - #{amount}
+        WHERE userID = #{userID}
+    </update>
+
     <resultMap id="User" type="jj.druid.mybatis.User">
         <id property="id" column="id" />
         <id property="name" column="name" />
