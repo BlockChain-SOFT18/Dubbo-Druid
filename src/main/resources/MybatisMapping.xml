@@ -6,24 +6,75 @@
     <cache type="org.mybatis.caches.redis.RedisCache" />
 
     <select id="selectAgencyID" resultType="int" parameterType="map">
-        SELECT IFNULL(MAX(agencyID),-1) FROM agencyinformation WHERE agencyID IS NOT NULL
-        <if test="agencyID != null">
-            AND agencyID = #{agencyID}
-        </if>
-        <if test="agencyName != null">
-            AND agencyName = #{agencyName}
-        </if>
+        SELECT IFNULL(MAX(agencyID),-1)
+        FROM agencyinformation
+        WHERE agencyID IS NOT NULL
+        <choose>
+            <when test="agencyPasswd != null">
+                AND agencyPasswd = PASSWORD(#{agencyPasswd})
+                <choose>
+                    <when test="agencyID != null">
+                        AND agencyID = #{agencyID}
+                    </when>
+                    <when test="agencyName != null">
+                        AND agencyName = #{agencyName}
+                    </when>
+                </choose>
+            </when>
+            <when test="agencyID != null">
+                AND agencyID = #{agencyID}
+            </when>
+            <when test="agencyName != null">
+                AND agencyName = #{agencyName}
+            </when>
+        </choose>
     </select>
     
     <select id="selectUserID" resultType="int" parameterType="map">
-        SELECT IFNULL(MAX(UserID),-1) FROM userinformation WHERE userID IS NOT NULL
-        <if test="userID != null">
-            AND userID = #{userID}
-        </if>
-        <if test="userName != null">
-            AND userName = #{userName}
-        </if>
+        SELECT IFNULL(MAX(UserID),-1)
+        FROM userinformation
+        WHERE userID IS NOT NULL
+        <choose>
+            <when test="userPasswd != null">
+                AND userPasswd = PASSWROD(#{userPasswd})
+                <choose>
+                    <when test="userID != null">
+                        AND userID = #{userID}
+                    </when>
+                    <when test="userName != null">
+                        AND userName = #{userName}
+                    </when>
+                </choose>
+            </when>
+            <when test="userID != null">
+                AND userID = #{userID}
+            </when>
+            <when test="userName != null">
+                AND userName = #{userName}
+            </when>
+            <when test="userIdentity != null &amp;&amp; agency!= null">
+                AND userIdentity = #{userIdentity}
+                AND agency = #{agency}
+            </when>
+        </choose>
     </select>
+
+    <select id="selectUserAvailableBalance" resultType="double">
+        SELECT availableBalance
+        FROM userinformation
+        WHERE userID = #{userID}
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO userinformation(userName, userPasswd, userRealName, userTel, userEmail, userIdentity, agency)
+        VALUES (#{userName},PASSWORD(#userPasswd),#{userRealName},#{userTel},#{userEmail},#{userIdentity},#{agency})
+    </insert>
+
+    <update id="updateUserPasswd">
+        UPDATE userinformation
+        SET userPasswd = PASSWORD(#{userPasswd})
+        WHERE userID = #{userID}
+    </update>
 
     <resultMap id="User" type="jj.druid.mybatis.User">
         <id property="id" column="id" />

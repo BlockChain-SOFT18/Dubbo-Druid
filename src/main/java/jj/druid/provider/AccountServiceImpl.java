@@ -1,6 +1,9 @@
 package jj.druid.provider;
 
 import jj.druid.api.AccountService;
+import jj.druid.mybatis.Mapper;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,31 +15,67 @@ import java.util.Map;
 public class AccountServiceImpl implements AccountService {
     private AccountDao accountDao;
 
+    private SqlSessionFactory sqlSessionFactory;
+
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
     }
 
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
+
     public void fun(){
-        System.out.println(accountDao.checkAgencyExists("agencyName","a1"));
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        System.out.println(accountDao.checkAgencyExists(mapper,"agencyID","1"));
+        sqlSession.close();
     }
 
     public int userLogin(String user_name, String user_passwd) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        sqlSession.close();
         return 0;
     }
 
     public int agencyLogin(String agency_name, String agency_passwd) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        sqlSession.close();
         return 0;
     }
 
-    public int userRegister(String user_name, String user_passwd, String user_realname, String user_tel, String user_email, String user_identity, int under_agency_id) {
+    public int userRegister(String user_name,
+                            String user_passwd,
+                            String user_realname,
+                            String user_tel,
+                            String user_email,
+                            String user_identity,
+                            int under_agency_id) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        sqlSession.close();
         return 0;
     }
 
-    public int userRegister(String user_name, String user_passwd, String user_realname, String user_tel, String user_email, String user_identity, String under_agency_name) {
+    public int userRegister(String user_name,
+                            String user_passwd,
+                            String user_realname,
+                            String user_tel,
+                            String user_email,
+                            String user_identity,
+                            String under_agency_name) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        sqlSession.close();
         return 0;
     }
 
     public boolean userPasswdChanging(int user_id, String old_passwd, String new_passwd) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        sqlSession.close();
         return false;
     }
 

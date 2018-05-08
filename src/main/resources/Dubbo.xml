@@ -16,12 +16,11 @@
     <!-- dubbo配置 -->
 
     <bean id="accountService" class="jj.druid.provider.AccountServiceImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="accountDao" ref="accountDao" />
     </bean>
 
-    <bean id="accountDao" class="jj.druid.provider.AccountDao">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    </bean>
+    <bean id="accountDao" class="jj.druid.provider.AccountDao"/>
 
     <bean id="druidService" class="jj.druid.provider.DruidImpl">
         <property name="druidDataSource" ref="dataSource" />
