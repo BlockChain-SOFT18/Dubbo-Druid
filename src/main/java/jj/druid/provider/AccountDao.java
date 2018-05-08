@@ -1,9 +1,11 @@
 package jj.druid.provider;
 
+import jj.druid.mybatis.Mapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AccountDao {
     private SqlSessionFactory sqlSessionFactory;
@@ -12,17 +14,32 @@ public class AccountDao {
         this.sqlSessionFactory = sqlSessionFactory;
     }
 
-    public void function() {
+    public int checkAgencyExists(String type,String value) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        List l = sqlSession.selectList("selectAll");
-        System.out.println(l);
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        Map map = new HashMap();
+        map.put(type,value);
+        int id = mapper.selectAgencyID(map);
         sqlSession.close();
+        return id;
     }
 
-    public void func() {
+    public int checkUserExists(String type,String value) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        sqlSession.update("update");
-        System.out.println("update");
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        Map map = new HashMap();
+        map.put(type,value);
+        int id = mapper.selectUserID(map);
         sqlSession.close();
+        return id;
+    }
+
+    public int checkUserAgencyDuplicate(String user_identity,int agency) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(jj.druid.mybatis.Mapper.class);
+        Map map = new HashMap();
+
+        sqlSession.close();
+        return 0;
     }
 }

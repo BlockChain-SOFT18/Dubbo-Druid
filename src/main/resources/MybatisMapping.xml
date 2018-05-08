@@ -2,19 +2,32 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jj.druid.mybatis">
+<mapper namespace="jj.druid.mybatis.Mapper">
     <cache type="org.mybatis.caches.redis.RedisCache" />
-    <select id="selectAll" resultMap="User">
-        SELECT * FROM test
+
+    <select id="selectAgencyID" resultType="int" parameterType="map">
+        SELECT IFNULL(MAX(agencyID),-1) FROM agencyinformation WHERE agencyID IS NOT NULL
+        <if test="agencyID != null">
+            AND agencyID = #{agencyID}
+        </if>
+        <if test="agencyName != null">
+            AND agencyName = #{agencyName}
+        </if>
+    </select>
+    
+    <select id="selectUserID" resultType="int" parameterType="map">
+        SELECT IFNULL(MAX(UserID),-1) FROM userinformation WHERE userID IS NOT NULL
+        <if test="userID != null">
+            AND userID = #{userID}
+        </if>
+        <if test="userName != null">
+            AND userName = #{userName}
+        </if>
     </select>
 
     <resultMap id="User" type="jj.druid.mybatis.User">
         <id property="id" column="id" />
-        <id property="username" column="username" />
+        <id property="name" column="name" />
     </resultMap>
-
-    <update id="update">
-        UPDATE test.test SET name = '2'
-    </update>
 
 </mapper>

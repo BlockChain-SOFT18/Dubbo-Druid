@@ -2,7 +2,7 @@ package jj.druid.mybatis;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+public class User {
     private int id;
     private String name;
 

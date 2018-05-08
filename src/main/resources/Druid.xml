@@ -7,7 +7,7 @@
 
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <!-- 基本属性 url、user、password -->
-        <property name="url" value="jdbc:mysql://127.0.0.1:3306/test?useSSL=true" />
+        <property name="url" value="jdbc:mysql://140.143.4.171:3306/vas?useSSL=true" />
         <property name="username" value="root" />
         <property name="password" value="O/74/+Vkw9e0hxKGnct4gQhiQ9IuhhDm9Q37Oqb6/Fzf1SXD0tOquwV8Uyiy/nT5PbggREiRiq/c2Hn+CpX3Pw==" />
 
