@@ -1,6 +1,4 @@
-package jj.druid.mybatis;
-
-import java.io.Serializable;
+package buaa.jj.accountservice.mybatis;
 
 public class User {
     private int id;

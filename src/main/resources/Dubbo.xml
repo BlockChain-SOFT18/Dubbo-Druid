@@ -10,19 +10,19 @@
     <dubbo:registry address="zookeeper://140.143.4.171:2181"/>
     <dubbo:protocol name="dubbo" port="20880" />
     <dubbo:monitor protocol="registry" />
-    <dubbo:service interface="jj.druid.api.Druid" ref="druidService"/>
-    <dubbo:service interface="jj.druid.api.AccountService" ref="accountService"/>
+    <dubbo:service interface="buaa.jj.accountservice.api.Druid" ref="druidService"/>
+    <dubbo:service interface="buaa.jj.accountservice.api.AccountService" ref="accountService"/>
 
     <!-- dubbo配置 -->
 
-    <bean id="accountService" class="jj.druid.provider.AccountServiceImpl">
+    <bean id="accountService" class="buaa.jj.accountservice.provider.AccountServiceImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="accountDao" ref="accountDao" />
     </bean>
 
-    <bean id="accountDao" class="jj.druid.provider.AccountDao"/>
+    <bean id="accountDao" class="buaa.jj.accountservice.provider.AccountDao"/>
 
-    <bean id="druidService" class="jj.druid.provider.DruidImpl">
+    <bean id="druidService" class="buaa.jj.accountservice.provider.DruidImpl">
         <property name="druidDataSource" ref="dataSource" />
     </bean>
 

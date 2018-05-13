@@ -1,4 +1,4 @@
-package jj.druid;
+package buaa.jj.accountservice;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;

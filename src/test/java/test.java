@@ -1,9 +1,6 @@
-import jj.druid.api.AccountService;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
+import buaa.jj.accountservice.api.AccountService;
+import buaa.jj.accountservice.exceptions.AccountServiceException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import java.util.*;
 
 public class test {
     public static void main(String[] args) {
@@ -11,6 +8,12 @@ public class test {
         context.start();
 
         AccountService accountService = (AccountService) context.getBean(AccountService.class);
-        accountService.fun();
+        try {
+            accountService.fun();
+        } catch (Exception e) {
+            if (e instanceof AccountServiceException) {
+                e.printStackTrace();
+            }
+        }
     }
 }

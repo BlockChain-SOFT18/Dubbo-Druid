@@ -5,7 +5,7 @@
          version="3.1">
 
     <listener>
-        <listener-class>jj.druid.RunMain</listener-class>
+        <listener-class>buaa.jj.accountservice.RunMain</listener-class>
     </listener>
 
     <servlet>

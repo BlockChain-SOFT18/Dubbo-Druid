@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jj.druid.mybatis.Mapper">
+<mapper namespace="buaa.jj.accountservice.mybatis.Mapper">
     <cache type="org.mybatis.caches.redis.RedisCache" />
 
     <select id="selectAgencyID" resultType="int" parameterType="map">
@@ -11,7 +11,7 @@
         WHERE agencyID IS NOT NULL
         <choose>
             <when test="agencyPasswd != null">
-                AND agencyPasswd = PASSWORD(#{agencyPasswd})
+                AND agencyPasswd = MD5(#{agencyPasswd})
                 <choose>
                     <when test="agencyID != null">
                         AND agencyID = #{agencyID}
@@ -36,7 +36,7 @@
         WHERE userID IS NOT NULL
         <choose>
             <when test="userPasswd != null">
-                AND userPasswd = PASSWROD(#{userPasswd})
+                AND userPasswd = MD5(#{userPasswd})
                 <choose>
                     <when test="userID != null">
                         AND userID = #{userID}
@@ -67,12 +67,12 @@
 
     <insert id="insertUser">
         INSERT INTO userinformation(userName, userPasswd, userRealName, userTel, userEmail, userIdentity, agency)
-        VALUES (#{userName},PASSWORD(#userPasswd),#{userRealName},#{userTel},#{userEmail},#{userIdentity},#{agency})
+        VALUES (#{userName},MD5(#{userPasswd}),#{userRealName},#{userTel},#{userEmail},#{userIdentity},#{agency})
     </insert>
 
     <update id="updateUserPasswd">
         UPDATE userinformation
-        SET userPasswd = PASSWORD(#{userPasswd})
+        SET userPasswd = MD5(#{userPasswd})
         WHERE userID = #{userID}
     </update>
 
@@ -109,11 +109,21 @@
 
     <update id="changeBalance">
         UPDATE userinformation
-        SET availableBalance = availableBalance - #{amount}
+        SET availableBalance = availableBalance + #{amount}
         WHERE userID = #{userID}
     </update>
 
-    <resultMap id="User" type="jj.druid.mybatis.User">
+    <update id="updatePlatformBalance">
+        UPDATE platforminformation
+        SET platformBalance = platformBalance + #{amount}
+    </update>
+
+    <update id="updateLiquidationBalance">
+        UPDATE platforminformation
+        SET liquidationBalance = liquidationBalance + #{amount}
+    </update>
+
+    <resultMap id="User" type="buaa.jj.accountservice.mybatis.User">
         <id property="id" column="id" />
         <id property="name" column="name" />
     </resultMap>

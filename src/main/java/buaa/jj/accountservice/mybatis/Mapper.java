@@ -1,4 +1,4 @@
-package jj.druid.mybatis;
+package buaa.jj.accountservice.mybatis;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -23,4 +23,6 @@ public interface Mapper {
     int selectUserIdentity(@Param("userName") String user_name, @Param("userIdentity") String user_identity);
     void updateIsFrozen(@Param("userID") int user_id, @Param("isFrozen") boolean is_frozen);
     void changeBalance(@Param("userID") int user_id, @Param("amount") double amount);
+    void updatePlatformBalance(@Param("amount") double amount);
+    void updateLiquidationBalance(@Param("amount") double amount);
 }

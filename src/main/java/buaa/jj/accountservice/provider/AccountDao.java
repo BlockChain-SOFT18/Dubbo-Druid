@@ -1,6 +1,6 @@
-package jj.druid.provider;
+package buaa.jj.accountservice.provider;
 
-import jj.druid.mybatis.Mapper;
+import buaa.jj.accountservice.mybatis.Mapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +24,7 @@ public class AccountDao {
         Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
         map.put("userIdentify",user_identity);
         map.put("agency",agency);
-        return mapper.selectAgencyID(map);
+        return mapper.selectUserID(map);
     }
 
     public int checkUserPasswd(Mapper mapper, String user_name, String passwd) {
@@ -95,10 +95,26 @@ public class AccountDao {
     }
 
     public void addBalance(Mapper mapper, int user_id,double amount) {
-        mapper.changeBalance(user_id, -amount);
+        mapper.changeBalance(user_id, amount);
     }
 
     public void minusBalance(Mapper mapper, int user_id,double amount) {
-        mapper.changeBalance(user_id, amount);
+        mapper.changeBalance(user_id, -amount);
+    }
+
+    public void addPlatformBalance(Mapper mapper, double amount) {
+        mapper.updatePlatformBalance(amount);
+    }
+
+    public void minusPlatformBalance(Mapper mapper, double amount) {
+        mapper.updatePlatformBalance(-amount);
+    }
+
+    public void addLiquidationBalance(Mapper mapper, double amount) {
+        mapper.updateLiquidationBalance(amount);
+    }
+
+    public void minusLiquidationBalance(Mapper mapper, double amount) {
+        mapper.updateLiquidationBalance(-amount);
     }
 }

@@ -1,4 +1,4 @@
-package jj.druid.api;
+package buaa.jj.accountservice.api;
 
 import java.sql.SQLException;
 import java.util.List;

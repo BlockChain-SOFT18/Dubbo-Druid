@@ -1,8 +1,7 @@
-package jj.druid.provider;
+package buaa.jj.accountservice.provider;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import jj.druid.api.Druid;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import buaa.jj.accountservice.api.Druid;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
