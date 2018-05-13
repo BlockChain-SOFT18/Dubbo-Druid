@@ -1,7 +1,7 @@
 package buaa.jj.accountservice.provider;
 
 import buaa.jj.accountservice.api.AccountService;
-import buaa.jj.accountservice.exceptions.AccountServiceException;
+import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -60,13 +60,13 @@ public class AccountServiceImpl implements AccountService {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
-            return -1;
+            throw new NameDuplicateException();
         }
         if (accountDao.checkAgencyExists(mapper,"agencyID",""+under_agency_id) == -1) {
-            return -2;
+            throw new AgencyNotExistException();
         }
         if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,under_agency_id) != -1) {
-            return -3;
+            throw new UserAgencyDuplicateException();
         }
         accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,under_agency_id);
         int id = accountDao.checkUserExists(mapper,"userName",user_name);
@@ -85,16 +85,13 @@ public class AccountServiceImpl implements AccountService {
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         int agency_id = accountDao.checkAgencyExists(mapper,"agencyName",under_agency_name);
         if (agency_id == -1) {
-            return -1;
+            throw new AgencyNotExistException();
         }
         if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
-            return -1;
-        }
-        if (accountDao.checkAgencyExists(mapper,"agencyID",""+agency_id) == -1) {
-            return -1;
+            throw new NameDuplicateException();
         }
         if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,agency_id) != -1) {
-            return -1;
+            throw new UserAgencyDuplicateException();
         }
         accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,agency_id);
         int id = accountDao.checkUserExists(mapper,"userName",user_name);
@@ -106,13 +103,12 @@ public class AccountServiceImpl implements AccountService {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (accountDao.checkUserPasswd(mapper,user_id,old_passwd) != user_id) {
-            sqlSession.close();
-            return false;
+            throw new WrongPasswordException();
         }
 
         accountDao.updatePasswd(mapper,user_id,new_passwd);
         if (accountDao.checkUserPasswd(mapper,user_id,new_passwd) == user_id)
-            throw new RuntimeException();
+            throw new WrongPasswordException();
         else {
             sqlSession.close();
             return true;
@@ -147,10 +143,10 @@ public class AccountServiceImpl implements AccountService {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (accountDao.checkUserExists(mapper,"userID",""+user_id) == -1)
-            return 0;
+            throw new UserNotExsistException();
         accountDao.updateFrozen(mapper,user_id, is_frozen);
         sqlSession.close();
-        return 0;
+        return 1;
     }
 
     public boolean foundPasswd(String user_name, String user_identity, String new_passwd) {
@@ -159,6 +155,8 @@ public class AccountServiceImpl implements AccountService {
         int id = accountDao.checkUserExists(mapper,"userName",user_name);
         if (id != -1) {
             accountDao.updatePasswd(mapper,id,new_passwd);
+        } else {
+            throw new UserNotExsistException();
         }
         sqlSession.close();
         return false;
