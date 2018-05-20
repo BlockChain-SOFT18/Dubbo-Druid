@@ -70,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
      * @param user_name 注册的用户的用户名，类型为String
      * @param user_passwd 注册的用户的密码，类型为String
      * @param user_realname 注册的用户的真实姓名，类型为String
-     * @param user_tel 注册的用户的电话号码，类型为Strin0g
+     * @param user_tel 注册的用户的电话号码，类型为String
      * @param user_email 注册的用户的邮箱，类型为String
      * @param user_identity 注册的用户的身份证号，类型为String
      * @param under_agency_id 注册的用户的所属机构的ID，类型为int
@@ -234,7 +234,7 @@ public class AccountServiceImpl implements AccountService {
      * @param user_name 找回密码的用户的用户名，类型为String
      * @param user_identity 找回密码的用户的身份证号，类型为String
      * @param new_passwd 找回密码的用户的新密码，类型为String
-     * @return 如果成功找回密码返回true
+     * @return 如果成功查询到返回false
      */
     public boolean foundPasswd(String user_name, String user_identity, String new_passwd) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -246,7 +246,7 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotExsistException();
         }
         sqlSession.close();
-        return true;
+        return false;
     }
 
     public List<Map<Integer, String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type) {
