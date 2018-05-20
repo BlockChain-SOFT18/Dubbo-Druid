@@ -1,11 +1,11 @@
-#虚拟账户
-##环境部署
+# 虚拟账户
+## 环境部署
 * zookeeper
 * redis
 * tomcat
 * jdk
-##接口
-######userLogin
+## 接口
+###### userLogin
 ```java
 /**
 * 传入用户的用户名和密码然后在数据库中进行搜索，如果能找到相匹配的用户就返回用户的用户ID
@@ -16,7 +16,7 @@
 */
 public int userLogin(String user_name, String user_passwd);
 ```
-######agencyLogin
+###### agencyLogin
 ```java
 /**
 * 传入机构的用户名和密码然后在数据库中进行搜索，如果能找到相匹配的机构就返回机构的机构ID
@@ -27,7 +27,7 @@ public int userLogin(String user_name, String user_passwd);
 */
 public int agencyLogin(String agency_name, String agency_passwd);
 ```
-######userRegister
+###### userRegister
 ```java
 /**
 * 传入用户的用户名密码真实姓名电话号码邮箱身份证以及所属机构，将数据成功插入到数据库后注册
@@ -78,7 +78,7 @@ public int userRegister(String user_name,
                         String user_identity,
                         int under_agency_name)
 ```
-######userPasswdChanging
+###### userPasswdChanging
 ```java
 /**
 * 传入更改用户的用户ID以及用户的老密码和新密码，如果输入的老密码可以和用户的密码相匹配，就
@@ -91,7 +91,7 @@ public int userRegister(String user_name,
 */
 public boolean userPasswdChanging(int user_id, String old_passwd, String new_passwd)
 ```
-######agencyInformation
+###### agencyInformation
 ```java
 /**
 * 传入机构的ID，返回机构的所有信息，具体的Map格式看返回内容
@@ -101,7 +101,7 @@ public boolean userPasswdChanging(int user_id, String old_passwd, String new_pas
 */
 public Map agencyInformation(int agency_id)
 ```
-######agencyAllUser
+###### agencyAllUser
 ```java
 /**
 * 传入机构的ID，返回机构下的所有的用户的用户ID
@@ -110,7 +110,7 @@ public Map agencyInformation(int agency_id)
 */
 public List<Integer> agencyAllUser(int agency_id)
 ```
-######userInformation
+###### userInformation
 ```java
 /**
 * 传入用户的ID，返回用户的所有信息，具体的Map格式看返回内容
@@ -121,7 +121,7 @@ public List<Integer> agencyAllUser(int agency_id)
 */
 public Map userInformation(int user_id)
 ```
-######freezeUnfreeze
+###### freezeUnfreeze
 ```java
 /**
 * 传入冻结用户的用户ID和是否冻结
@@ -132,7 +132,7 @@ public Map userInformation(int user_id)
 */
 public int freezeUnfreeze(int user_id, boolean is_frozen)
 ```
-######foundPasswd
+###### foundPasswd
 ```java
 /**
 * 传入找回密码的用户的用户名身份证号以及新的密码，如果成功找回密码则返回true
@@ -143,8 +143,8 @@ public int freezeUnfreeze(int user_id, boolean is_frozen)
 */
 public boolean foundPasswd(String user_name, String user_identity, String new_passwd)
 ```
-######agencyTradeInformation
-######userTradeInformation
-######transferConsume
-######reCharge
-######drawMoney
+###### agencyTradeInformation
+###### userTradeInformation
+###### transferConsume
+###### reCharge
+###### drawMoney
