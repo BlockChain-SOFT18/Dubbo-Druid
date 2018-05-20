@@ -1,9 +1,6 @@
 package buaa.jj.accountservice.api;
 
-import buaa.jj.accountservice.exceptions.AccountServiceException;
-import buaa.jj.accountservice.exceptions.RegistryException;
-import buaa.jj.accountservice.exceptions.UserNotExsistException;
-import buaa.jj.accountservice.exceptions.WrongPasswordException;
+import buaa.jj.accountservice.exceptions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -12,8 +9,8 @@ public interface AccountService {
     void fun() throws AccountServiceException;
     int userLogin(String user_name,String user_passwd);
     int agencyLogin(String agency_name,String agency_passwd);
-    int userRegister(String user_name,String user_passwd,String user_realname,String user_tel,String user_email,String user_identity,int under_agency_id) throws RegistryException;
-    int userRegister(String user_name,String user_passwd,String user_realname,String user_tel,String user_email,String user_identity,String under_agency_name) throws RegistryException;
+    int userRegister(String user_name,String user_passwd,String user_realname,String user_tel,String user_email,String user_identity,int under_agency_id) throws NameDuplicateException,UserAgencyDuplicateException,AgencyNotExistException;
+    int userRegister(String user_name,String user_passwd,String user_realname,String user_tel,String user_email,String user_identity,String under_agency_name) throws NameDuplicateException,UserAgencyDuplicateException,AgencyNotExistException;
     boolean userPasswdChanging(int user_id,String old_passwd,String new_passwd) throws WrongPasswordException;
     Map agencyInformation(int agency_id);
     List<Integer> agencyAllUser(int agency_id);
