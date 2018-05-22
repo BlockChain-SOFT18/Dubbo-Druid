@@ -14,16 +14,4 @@
     <dubbo:service interface="buaa.jj.accountservice.api.AccountService" ref="accountService"/>
 
     <!-- dubbo配置 -->
-
-    <bean id="accountService" class="buaa.jj.accountservice.provider.AccountServiceImpl">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-        <property name="accountDao" ref="accountDao" />
-    </bean>
-
-    <bean id="accountDao" class="buaa.jj.accountservice.provider.AccountDao"/>
-
-    <bean id="druidService" class="buaa.jj.accountservice.provider.DruidImpl">
-        <property name="druidDataSource" ref="dataSource" />
-    </bean>
-
 </beans>
