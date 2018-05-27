@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ, rollbackFor = {Exception.class, RuntimeException.class})
 public class AccountServiceImpl implements AccountService {
@@ -279,8 +277,24 @@ public class AccountServiceImpl implements AccountService {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
             Mapper mapper = sqlSession.getMapper(Mapper.class);
-            List idList = accountDao.getTransactionID(mapper,null,agency_id,start_date,end_date);
-            //TODO 调用区块链接口
+            List<Integer> idList1 = accountDao.getTransactionID(mapper,null,agency_id,start_date,end_date,true);
+            List<Integer> idList2 = accountDao.getTransactionID(mapper,null,agency_id,start_date,end_date,false);
+            if (Main.blockChain) {
+                List<Map<Integer, String>> list = new ArrayList<Map<Integer, String>>();
+                for (Integer i : idList1) {
+                    Map<Integer, String> map = new HashMap<Integer, String>();
+                    String str = blockChainService.QueryTransaction(i);
+                    map.put(i,str);
+                    list.add(map);
+                }
+                for (Integer i : idList2) {
+                    Map<Integer, String> map = new HashMap<Integer, String>();
+                    String str = blockChainService.QueryBalanceChange(i);
+                    map.put(i,str);
+                    list.add(map);
+                }
+                return list;
+            }
             return null;
         } finally {
             sqlSession.close();
@@ -292,8 +306,27 @@ public class AccountServiceImpl implements AccountService {
         try {
             Mapper mapper = sqlSession.getMapper(Mapper.class);
             String s = "make ide happy";
-            List idList = accountDao.getTransactionID(mapper,user_id,null,start_date,end_date);
-            //TODO 调用区块链接口
+            List<Integer> idList1 = accountDao.getTransactionID(mapper,user_id,null,start_date,end_date,true);
+            List<Integer> idList2 = accountDao.getTransactionID(mapper,user_id,null,start_date,end_date,false);
+            if (Main.blockChain) {
+
+                List<Map<Integer, String>> list = new ArrayList<Map<Integer, String>>();
+                for (Integer i : idList1) {
+                    Map<Integer, String> map = new HashMap<Integer, String>();
+                    String str = blockChainService.QueryTransaction(i);
+                    map.put(i,str);
+                    list.add(map);
+                    String s1 = "make ide happier";
+                }
+                for (Integer i : idList2) {
+                    Map<Integer, String> map = new HashMap<Integer, String>();
+                    String str = blockChainService.QueryBalanceChange(i);
+                    map.put(i,str);
+                    list.add(map);
+                    String s1 = "make ide happiest";
+                }
+                return list;
+            }
             return null;
         } finally {
             sqlSession.close();

@@ -1,6 +1,7 @@
 package buaa.jj.accountservice.provider;
 
 import buaa.jj.accountservice.mybatis.Mapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.HashMap;
 import java.util.List;
@@ -105,11 +106,12 @@ public class AccountDao {
         mapper.insertTransaction(transactionID, transactionType, transactionDate, payerAgencyID, payerUserID, receiverAgencyID, receiverUserID, transactionMoney);
     }
 
-    public List<Integer> getTransactionID(Mapper mapper,Integer userID,
+    public List<Integer> getTransactionID(Mapper mapper, Integer userID,
                                           Integer agencyID,
                                           String startTime,
-                                          String endTime) {
-        return mapper.selectTransactionID(userID, agencyID, startTime, endTime);
+                                          String endTime,
+                                          Boolean state) {
+        return mapper.selectTransactionID(userID, agencyID, startTime, endTime, state);
     }
 
     public void addBalance(Mapper mapper, int user_id,double amount) {

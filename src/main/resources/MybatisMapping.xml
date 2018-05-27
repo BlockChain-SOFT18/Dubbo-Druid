@@ -100,6 +100,14 @@
         <if test="userID != null">
             AND (payerUserID = #{userID} OR receiverUserID = #{userID})
         </if>
+        <choose>
+            <when test="state == true">
+                AND transactionType = 0
+            </when>
+            <otherwise>
+                AND transactionType != 0
+            </otherwise>
+        </choose>
     </select>
 
     <insert id="insertUser">

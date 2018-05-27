@@ -36,5 +36,6 @@ public interface Mapper {
     List<Integer> selectTransactionID(@Param("userID") Integer userID,
                                       @Param("agencyID") Integer agencyID,
                                       @Param("startTime") String startTime,
-                                      @Param("endTime") String endTime);
+                                      @Param("endTime") String endTime,
+                                      @Param("state") Boolean state);
 }
