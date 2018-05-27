@@ -10,6 +10,7 @@ class AccountServiceImplTest {
     AccountService accountService;
 
     AccountServiceImplTest() {
+        System.setProperty("logPath","./logs");
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"Beans.xml","Druid.xml","Mybatis.xml"});
         context.start();
         accountService = (AccountService) context.getBean("accountService");
@@ -17,8 +18,6 @@ class AccountServiceImplTest {
 
     @Test
     void userLogin() {
-        System.out.println(Encrypt.SHA256("123456").length());
-        System.out.println(accountService.userLogin("jj","123456"));
     }
 
     @Test
@@ -67,13 +66,16 @@ class AccountServiceImplTest {
 
     @Test
     void transferConsume() {
+        accountService.transferConsume(5,5,1,true);
     }
 
     @Test
     void reCharge() {
+        accountService.reCharge(5,1,true);
     }
 
     @Test
     void drawMoney() {
+        accountService.drawMoney(5,1,true);
     }
 }

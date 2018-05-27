@@ -14,6 +14,7 @@ class AccountDaoTest {
     AccountDao accountDao;
 
     AccountDaoTest() {
+        System.setProperty("logPath","./logs");
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"Beans.xml","Druid.xml","Mybatis.xml"});
         context.start();
         SqlSessionFactory sqlSessionFactory = (SqlSessionFactory) context.getBean("sqlSessionFactory");

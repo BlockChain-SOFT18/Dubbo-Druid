@@ -2,17 +2,16 @@ package buaa.jj.accountservice;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class Log4jPrintStream extends PrintStream {
+public class Log4jInfoPrintStream extends PrintStream {
 
     private Logger log = LogManager.getLogger("logger");
-    private static Log4jPrintStream printStream = new Log4jPrintStream(System.out);
+    private static Log4jInfoPrintStream printStream = new Log4jInfoPrintStream(System.out);
 
-    private Log4jPrintStream(OutputStream out) {
+    private Log4jInfoPrintStream(OutputStream out) {
         super(out);
     }
 

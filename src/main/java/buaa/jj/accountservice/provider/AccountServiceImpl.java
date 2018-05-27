@@ -1,6 +1,8 @@
 package buaa.jj.accountservice.provider;
 
+import buaa.jj.accountservice.Main;
 import buaa.jj.accountservice.api.AccountService;
+import buaa.jj.accountservice.api.BlockChainService;
 import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
 import org.apache.ibatis.session.SqlSession;
@@ -9,6 +11,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +23,7 @@ public class AccountServiceImpl implements AccountService {
     private AccountDao accountDao;
 
     private SqlSessionFactory sqlSessionFactory;
+    private BlockChainService blockChainService;
 
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
@@ -24,14 +31,6 @@ public class AccountServiceImpl implements AccountService {
 
     public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
         this.sqlSessionFactory = sqlSessionFactory;
-    }
-
-    public void fun(){
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        System.out.println(accountDao.checkAgencyExists(mapper,"agencyID","1"));
-        sqlSession.close();
-        throw new AccountServiceException();
     }
 
     /**
@@ -43,10 +42,12 @@ public class AccountServiceImpl implements AccountService {
      */
     public int userLogin(String user_name, String user_passwd) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        int id = accountDao.checkUserPasswd(mapper,user_name,user_passwd);
-        sqlSession.close();
-        return id;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            return accountDao.checkUserPasswd(mapper,user_name,user_passwd);
+        } finally {
+            sqlSession.close();
+        }
     }
 
     /**
@@ -58,10 +59,12 @@ public class AccountServiceImpl implements AccountService {
      */
     public int agencyLogin(String agency_name, String agency_passwd) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        int id = accountDao.checkAgencyPasswd(mapper,agency_name,agency_passwd);
-        sqlSession.close();
-        return id;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            return accountDao.checkAgencyPasswd(mapper,agency_name,agency_passwd);
+        } finally {
+            sqlSession.close();
+        }
     }
 
     /**
@@ -88,20 +91,23 @@ public class AccountServiceImpl implements AccountService {
                             String user_identity,
                             int under_agency_id) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
-            throw new NameDuplicateException();
+
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
+                throw new NameDuplicateException();
+            }
+            if (accountDao.checkAgencyExists(mapper,"agencyID",""+under_agency_id) == -1) {
+                throw new AgencyNotExistException();
+            }
+            if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,under_agency_id) != -1) {
+                throw new UserAgencyDuplicateException();
+            }
+            accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,under_agency_id);
+            return accountDao.checkUserExists(mapper,"userName",user_name);
+        } finally {
+            sqlSession.close();
         }
-        if (accountDao.checkAgencyExists(mapper,"agencyID",""+under_agency_id) == -1) {
-            throw new AgencyNotExistException();
-        }
-        if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,under_agency_id) != -1) {
-            throw new UserAgencyDuplicateException();
-        }
-        accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,under_agency_id);
-        int id = accountDao.checkUserExists(mapper,"userName",user_name);
-        sqlSession.close();
-        return id;
     }
 
     /**
@@ -128,21 +134,24 @@ public class AccountServiceImpl implements AccountService {
                             String user_identity,
                             String under_agency_name) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        int agency_id = accountDao.checkAgencyExists(mapper,"agencyName",under_agency_name);
-        if (agency_id == -1) {
-            throw new AgencyNotExistException();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            int agency_id = accountDao.checkAgencyExists(mapper,"agencyName",under_agency_name);
+            if (agency_id == -1) {
+                throw new AgencyNotExistException();
+            }
+            if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
+                throw new NameDuplicateException();
+            }
+            if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,agency_id) != -1) {
+                throw new UserAgencyDuplicateException();
+            }
+            accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,agency_id);
+            return accountDao.checkUserExists(mapper,"userName",user_name);
+        } finally {
+            sqlSession.close();
         }
-        if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
-            throw new NameDuplicateException();
-        }
-        if (accountDao.checkUserAgencyDuplicate(mapper,user_identity,agency_id) != -1) {
-            throw new UserAgencyDuplicateException();
-        }
-        accountDao.userInsert(mapper,user_name,user_passwd,user_realname,user_tel,user_email,user_identity,agency_id);
-        int id = accountDao.checkUserExists(mapper,"userName",user_name);
-        sqlSession.close();
-        return id;
+
     }
 
     /**
@@ -156,17 +165,20 @@ public class AccountServiceImpl implements AccountService {
      */
     public boolean userPasswdChanging(int user_id, String old_passwd, String new_passwd) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        if (accountDao.checkUserPasswd(mapper,user_id,old_passwd) != user_id) {
-            throw new WrongPasswordException();
-        }
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            if (accountDao.checkUserPasswd(mapper,user_id,old_passwd) != user_id) {
+                throw new WrongPasswordException();
+            }
 
-        accountDao.updatePasswd(mapper,user_id,new_passwd);
-        if (accountDao.checkUserPasswd(mapper,user_id,new_passwd) == user_id)
-            throw new WrongPasswordException();
-        else {
+            accountDao.updatePasswd(mapper,user_id,new_passwd);
+            if (accountDao.checkUserPasswd(mapper,user_id,new_passwd) == user_id)
+                throw new WrongPasswordException();
+            else {
+                return true;
+            }
+        } finally {
             sqlSession.close();
-            return true;
         }
     }
 
@@ -178,10 +190,13 @@ public class AccountServiceImpl implements AccountService {
      */
     public Map agencyInformation(int agency_id) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        Map map = accountDao.getAgencyInformation(mapper,agency_id);
-        sqlSession.close();
-        return map;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            return accountDao.getAgencyInformation(mapper,agency_id);
+        } finally {
+            sqlSession.close();
+        }
+
     }
 
     /**
@@ -191,10 +206,12 @@ public class AccountServiceImpl implements AccountService {
      */
     public List<Integer> agencyAllUser(int agency_id) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        List<Integer> list = accountDao.getAgencyUsers(mapper,agency_id);
-        sqlSession.close();
-        return list;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            return accountDao.getAgencyUsers(mapper,agency_id);
+        } finally {
+            sqlSession.close();
+        }
     }
 
     /**
@@ -206,10 +223,13 @@ public class AccountServiceImpl implements AccountService {
      */
     public Map userInformation(int user_id) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        Map map = accountDao.getUserInformation(mapper,user_id);
-        sqlSession.close();
-        return map;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            return accountDao.getUserInformation(mapper,user_id);
+        } finally {
+            sqlSession.close();
+        }
+
     }
 
     /**
@@ -221,12 +241,15 @@ public class AccountServiceImpl implements AccountService {
      */
     public int freezeUnfreeze(int user_id, boolean is_frozen) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        if (accountDao.checkUserExists(mapper,"userID",""+user_id) == -1)
-            throw new UserNotExsistException();
-        accountDao.updateFrozen(mapper,user_id, is_frozen);
-        sqlSession.close();
-        return 1;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            if (accountDao.checkUserExists(mapper,"userID",""+user_id) == -1)
+                throw new UserNotExsistException();
+            accountDao.updateFrozen(mapper,user_id, is_frozen);
+            return 1;
+        } finally {
+            sqlSession.close();
+        }
     }
 
     /**
@@ -238,49 +261,194 @@ public class AccountServiceImpl implements AccountService {
      */
     public boolean foundPasswd(String user_name, String user_identity, String new_passwd) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        int id = accountDao.checkUserExists(mapper,"userName",user_name);
-        if (id != -1) {
-            accountDao.updatePasswd(mapper,id,new_passwd);
-        } else {
-            throw new UserNotExsistException();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            int id = accountDao.checkUserExists(mapper,"userName",user_name);
+            if (id != -1) {
+                accountDao.updatePasswd(mapper,id,new_passwd);
+            } else {
+                throw new UserNotExsistException();
+            }
+            return true;
+        } finally {
+            sqlSession.close();
         }
-        sqlSession.close();
-        return false;
     }
 
     public List<Map<Integer, String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        sqlSession.close();
-        return null;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            List idList = accountDao.getTransactionID(mapper,null,agency_id,start_date,end_date);
+            //TODO 调用区块链接口
+            return null;
+        } finally {
+            sqlSession.close();
+        }
     }
 
     public List<Map<Integer, String>> userTradeInformation(int user_id, String start_date, String end_date, int trade_type) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        sqlSession.close();
-        return null;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            String s = "make ide happy";
+            List idList = accountDao.getTransactionID(mapper,user_id,null,start_date,end_date);
+            //TODO 调用区块链接口
+            return null;
+        } finally {
+            sqlSession.close();
+        }
     }
 
     public boolean transferConsume(int pay_user_id, int get_user_id, double amount, boolean trade_type) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        sqlSession.close();
-        return false;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            if (pay_user_id <= 2 || get_user_id <= 2) {
+                //清洁算平台调用部分
+                if (pay_user_id > 2 && get_user_id == 2) {
+                    //消费时清洁算平台调用扣除费用
+                    accountDao.minusBalance(mapper,pay_user_id,amount);
+                    accountDao.addLiquidationBalance(mapper,amount);
+                } else if (pay_user_id == 2 && get_user_id == 1) {
+                    //清洁算时清洁算平台调用转帐到平台收入
+                    accountDao.minusLiquidationBalance(mapper,amount);
+                    accountDao.addPlatformBalance(mapper,amount);
+                } else if (pay_user_id == 2 && get_user_id > 2 ) {
+                    //清分时清洁算平台调用支付商户金钱
+                    accountDao.minusLiquidationBalance(mapper,amount);
+                    accountDao.addBalance(mapper,get_user_id,amount);
+                }
+            } else {
+                //普通用户消费或转帐
+                //获取账户信息
+                Map map1 = accountDao.getUserInformation(mapper,pay_user_id);
+                Map map2 = accountDao.getUserInformation(mapper,get_user_id);
+                //判断用户是否存在以及是否有足够的可用余额
+                if (map1 == null || map2 == null) {
+                    throw new UserNotExsistException();
+                } else if ((Integer) map1.get("availableBalance") < amount) {
+                    return false;
+                }
+                //生成消费ID
+                int agencyid1 = (Integer) map1.get("agency");
+                int agencyid2 = (Integer) map2.get("agency");
+                StringBuilder s = new StringBuilder();
+                s.append(0);
+                s.append(agencyid1).append(0);
+                s.append(pay_user_id);
+                s.append(agencyid2).append(0);
+                s.append(get_user_id);
+                if (trade_type) {
+                    //用户消费调用清洁算平台
+                    //TODO 清洁算平台接口
+                    s.append(1);
+                }
+                else {
+                    //用户转帐扣费并且实时到帐
+                    accountDao.minusBalance(mapper,pay_user_id,amount);
+                    accountDao.addBalance(mapper,get_user_id,amount);
+                    s.append(0);
+                }
+                String datetime = generatorID(s);
+                //将消费信息计入消费数据库并且调用区块链接口入链
+                accountDao.insertTransaction(mapper,s.toString(),0,datetime,agencyid1,pay_user_id,agencyid2,get_user_id,amount);
+                if (Main.blockChain) {
+                    blockChainService.InsertTransaction(Integer.parseInt(s.toString()),agencyid1,pay_user_id,agencyid2,get_user_id,datetime,trade_type,amount);
+                }
+            }
+            return true;
+        } finally {
+            sqlSession.close();
+        }
     }
 
     public boolean reCharge(int user_id, double amount, boolean recharge_platform) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        sqlSession.close();
-        return false;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            //获取用户信息
+            Map map = accountDao.getUserInformation(mapper,user_id);
+            //判断用户是否存在
+            if (map == null) {
+                throw new UserNotExsistException();
+            }
+            //生成交易ID
+            int agencyid = (Integer) map.get("agency");
+            StringBuilder s = new StringBuilder();
+            s.append(1);
+            s.append(agencyid).append(0);
+            s.append(user_id);
+            //增加用户余额并且在加入交易数据库后入链
+            accountDao.addBalance(mapper,user_id,amount);
+            String datetime = generatorID(s);
+            accountDao.insertTransaction(mapper,s.toString(),1,datetime,null,null,agencyid,user_id,amount);
+            if (Main.blockChain) {
+                blockChainService.InsertBalanceChange(Integer.parseInt(s.toString()),agencyid,user_id,datetime,recharge_platform,amount);
+            }
+            //调用清洁算平台提供的充值接口
+            if (recharge_platform) {
+                //TODO 清洁算平台接口
+                s.append(1);
+            }
+            else {
+                //TODO 清洁算平台接口
+                s.append(0);
+            }
+            return true;
+        } finally {
+            sqlSession.close();
+        }
     }
 
     public boolean drawMoney(int user_id, double amount, boolean draw_platform) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        sqlSession.close();
-        return false;
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            //获取用户信息
+            Map map = accountDao.getUserInformation(mapper,user_id);
+            //判断用户是否存在
+            if (map == null) {
+                throw new UserNotExsistException();
+            } else if ((Integer) map.get("availableBalance") < amount) {
+                return false;
+            }
+            //生成交易ID
+            int agencyid = (Integer) map.get("agency");
+            StringBuilder s = new StringBuilder();
+            s.append(2);
+            s.append(agencyid).append(0);
+            s.append(user_id);
+            //扣除用户余额并且在加入交易数据库后入链
+            accountDao.minusBalance(mapper,user_id,amount);
+            String datetime = generatorID(s);
+            accountDao.insertTransaction(mapper,s.toString(),2,datetime,agencyid,user_id,null,null,amount);
+            if (Main.blockChain) {
+                blockChainService.InsertBalanceChange(Integer.parseInt(s.toString()),agencyid,user_id,datetime,draw_platform,amount);
+            }
+            if (draw_platform) {
+                //TODO 清洁算平台接口
+                s.append(1);
+            }
+            else {
+                //TODO 清洁算平台接口
+                s.append(0);
+            }
+            return true;
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    private String generatorID(StringBuilder s) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String datetime = dateFormat.format(new Date());
+        StringBuilder stringBuilder = new StringBuilder(datetime);
+        int a[] = {4,6,8,10,12};
+        for (int n : a) {
+            stringBuilder.deleteCharAt(n);
+        }
+        s.insert(0,stringBuilder.toString());
+        return datetime;
     }
 }

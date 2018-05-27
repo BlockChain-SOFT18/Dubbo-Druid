@@ -14,11 +14,4 @@
         <property name="druidDataSource" ref="dataSource" />
     </bean>
 
-    <bean id="exceptionAdvisor" class="buaa.jj.accountservice.exceptions.ExceptionAdvisor"/>
-
-    <aop:config>
-        <aop:pointcut id="providers" expression="execution(* buaa.jj.accountservice.provider.*Impl.*(..))"/>
-        <aop:advisor advice-ref="exceptionAdvisor" pointcut-ref="providers"/>
-    </aop:config>
-
 </beans>

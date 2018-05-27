@@ -4,19 +4,24 @@ package buaa.jj.accountservice;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main extends Thread {
+
+    public final static boolean blockChain = false;
+    public final static boolean clearSystem = false;
+
     @Override
     public void run() {
         try {
             setLogPath();
-            Log4jPrintStream.redirectSystemOut();
+            Log4jInfoPrintStream.redirectSystemOut();
+            Log4jErrorPrintStream.redirectSystemOut();
             ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"Druid.xml","Mybatis.xml","Dubbo.xml","Beans.xml"});
             context.start();
             System.out.println("Dubbo启动！！");
             while (true) {
-
+                throw new RuntimeException();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 
