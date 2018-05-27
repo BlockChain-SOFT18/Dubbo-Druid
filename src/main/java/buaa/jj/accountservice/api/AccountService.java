@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface AccountService {
-    void fun() throws AccountServiceException;
     int userLogin(String user_name,String user_passwd);
     int agencyLogin(String agency_name,String agency_passwd);
     int userRegister(String user_name,String user_passwd,String user_realname,String user_tel,String user_email,String user_identity,int under_agency_id) throws NameDuplicateException,UserAgencyDuplicateException,AgencyNotExistException;

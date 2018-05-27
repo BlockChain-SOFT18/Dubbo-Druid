@@ -11,7 +11,7 @@
         WHERE agencyID IS NOT NULL
         <choose>
             <when test="agencyPasswd != null">
-                AND agencyPasswd = MD5(#{agencyPasswd})
+                AND agencyPasswd = #{agencyPasswd}
                 <choose>
                     <when test="agencyID != null">
                         AND agencyID = #{agencyID}
@@ -36,7 +36,7 @@
         WHERE userID IS NOT NULL
         <choose>
             <when test="userPasswd != null">
-                AND userPasswd = MD5(#{userPasswd})
+                AND userPasswd = #{userPasswd}
                 <choose>
                     <when test="userID != null">
                         AND userID = #{userID}
@@ -65,19 +65,8 @@
         WHERE userID = #{userID}
     </select>
 
-    <insert id="insertUser">
-        INSERT INTO userinformation(userName, userPasswd, userRealName, userTel, userEmail, userIdentity, agency)
-        VALUES (#{userName},MD5(#{userPasswd}),#{userRealName},#{userTel},#{userEmail},#{userIdentity},#{agency})
-    </insert>
-
-    <update id="updateUserPasswd">
-        UPDATE userinformation
-        SET userPasswd = MD5(#{userPasswd})
-        WHERE userID = #{userID}
-    </update>
-
     <select id="selectUser" resultType="map">
-        SELECT *
+        SELECT userID,userName,userEmail,userRealName,userTel,userIdentity,agency,availableBalance,frozenBalance,isFrozen
         FROM userinformation
         WHERE userID = #{userID}
     </select>
@@ -90,7 +79,7 @@
     </select>
 
     <select id="selectAgency" resultType="map">
-        SELECT *
+        SELECT agencyID,agencyName,agentTel,agentName,agentEmail
         FROM agencyinformation
         WHERE agencyID = #{agencyID}
     </select>
@@ -100,6 +89,59 @@
         FROM userinformation
         WHERE agency = #{agency}
     </select>
+
+    <select id="selectTransactionID" parameterType="map" resultType="integer">
+        SELECT transactionID
+        FROM transactioninformation
+        WHERE transactionDate BETWEEN #{startTime} AND #{endTime}
+        <if test="agencyID != null">
+            AND (payerAgencyID = #{agencyID} OR receiverAgencyID = #{agencyID})
+        </if>
+        <if test="userID != null">
+            AND (payerUserID = #{userID} OR receiverUserID = #{userID})
+        </if>
+        <choose>
+            <when test="state == true">
+                AND transactionType = 0
+            </when>
+            <otherwise>
+                AND transactionType != 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO userinformation(userName, userPasswd, userRealName, userTel, userEmail, userIdentity, agency)
+        VALUES (#{userName},#{userPasswd},#{userRealName},#{userTel},#{userEmail},#{userIdentity},#{agency})
+    </insert>
+
+    <insert id="insertTransaction">
+        INSERT INTO transactioninformation
+        VALUES (#{transactionID},#{transactionType},#{transactionDate},
+        <choose>
+            <when test="payerAgencyID != null &amp;&amp; payerUserID != null">
+                #{payerAgencyID},#{payerUserID},
+            </when>
+            <otherwise>
+                NULL,NULL,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="receiverAgencyID != null &amp;&amp; receiverUserID != null">
+                #{receiverAgencyID},#{receiverUserID},
+            </when>
+            <otherwise>
+                NULL,NULL,
+            </otherwise>
+        </choose>
+        #{transactionMoney})
+    </insert>
+
+    <update id="updateUserPasswd">
+        UPDATE userinformation
+        SET userPasswd = #{userPasswd}
+        WHERE userID = #{userID}
+    </update>
 
     <update id="updateIsFrozen">
         UPDATE userinformation

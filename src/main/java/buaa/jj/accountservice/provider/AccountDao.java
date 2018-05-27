@@ -1,6 +1,7 @@
 package buaa.jj.accountservice.provider;
 
 import buaa.jj.accountservice.mybatis.Mapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class AccountDao {
 
     public int checkUserAgencyDuplicate(Mapper mapper, String user_identity, int agency) {
         Map<String, java.io.Serializable> map = new HashMap<String, java.io.Serializable>();
-        map.put("userIdentify",user_identity);
+        map.put("userIdentity",user_identity);
         map.put("agency",agency);
         return mapper.selectUserID(map);
     }
@@ -92,6 +93,25 @@ public class AccountDao {
 
     public void updateFrozen(Mapper mapper, int user_id, boolean is_frozen) {
         mapper.updateIsFrozen(user_id,is_frozen);
+    }
+
+    public void insertTransaction(Mapper mapper,String transactionID,
+                                  int transactionType,
+                                  String transactionDate,
+                                  Integer payerAgencyID,
+                                  Integer payerUserID,
+                                  Integer receiverAgencyID,
+                                  Integer receiverUserID,
+                                  double transactionMoney) {
+        mapper.insertTransaction(transactionID, transactionType, transactionDate, payerAgencyID, payerUserID, receiverAgencyID, receiverUserID, transactionMoney);
+    }
+
+    public List<Integer> getTransactionID(Mapper mapper, Integer userID,
+                                          Integer agencyID,
+                                          String startTime,
+                                          String endTime,
+                                          Boolean state) {
+        return mapper.selectTransactionID(userID, agencyID, startTime, endTime, state);
     }
 
     public void addBalance(Mapper mapper, int user_id,double amount) {

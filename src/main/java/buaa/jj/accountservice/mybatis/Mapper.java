@@ -25,4 +25,17 @@ public interface Mapper {
     void changeBalance(@Param("userID") int user_id, @Param("amount") double amount);
     void updatePlatformBalance(@Param("amount") double amount);
     void updateLiquidationBalance(@Param("amount") double amount);
+    void insertTransaction(@Param("transactionID") String transactionID,
+                           @Param("transactionType") int transactionType,
+                           @Param("transactionDate") String transactionDate,
+                           @Param("payerAgencyID") Integer payerAgencyID,
+                           @Param("payerUserID") Integer payerUserID,
+                           @Param("receiverAgencyID") Integer receiverAgencyID,
+                           @Param("receiverUserID") Integer receiverUserID,
+                           @Param("transactionMoney") double transactionMoney);
+    List<Integer> selectTransactionID(@Param("userID") Integer userID,
+                                      @Param("agencyID") Integer agencyID,
+                                      @Param("startTime") String startTime,
+                                      @Param("endTime") String endTime,
+                                      @Param("state") Boolean state);
 }
