@@ -3,6 +3,7 @@ package buaa.jj.accountservice.provider;
 import buaa.jj.accountservice.Main;
 import buaa.jj.accountservice.api.AccountService;
 import buaa.jj.accountservice.api.BlockChainService;
+import buaa.jj.accountservice.api.IUserService;
 import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
 import org.apache.ibatis.session.SqlSession;
@@ -22,6 +23,7 @@ public class AccountServiceImpl implements AccountService {
 
     private SqlSessionFactory sqlSessionFactory;
     private BlockChainService blockChainService;
+    private IUserService iUserService;
 
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
@@ -273,6 +275,14 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    /**
+     * 获取区块链中所有机构相关的交易信息，
+     * @param agency_id
+     * @param start_date
+     * @param end_date
+     * @param trade_type
+     * @return
+     */
     public List<Map<Integer, String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
@@ -372,10 +382,13 @@ public class AccountServiceImpl implements AccountService {
                 s.append(pay_user_id);
                 s.append(agencyid2).append(0);
                 s.append(get_user_id);
+                String datetime = generatorID(s);
                 if (trade_type) {
                     //用户消费调用清洁算平台
-                    //TODO 清洁算平台接口
                     s.append(1);
+                    if (Main.clearSystem) {
+                        iUserService.Consume(pay_user_id,get_user_id,datetime,s.toString(),(float) amount,true);
+                    }
                 }
                 else {
                     //用户转帐扣费并且实时到帐
@@ -383,7 +396,6 @@ public class AccountServiceImpl implements AccountService {
                     accountDao.addBalance(mapper,get_user_id,amount);
                     s.append(0);
                 }
-                String datetime = generatorID(s);
                 //将消费信息计入消费数据库并且调用区块链接口入链
                 accountDao.insertTransaction(mapper,s.toString(),0,datetime,agencyid1,pay_user_id,agencyid2,get_user_id,amount);
                 if (Main.blockChain) {
@@ -421,12 +433,16 @@ public class AccountServiceImpl implements AccountService {
             }
             //调用清洁算平台提供的充值接口
             if (recharge_platform) {
-                //TODO 清洁算平台接口
                 s.append(1);
+                if (Main.clearSystem) {
+                    iUserService.Recharge(user_id,s.toString(),datetime,(float) amount,recharge_platform,true);
+                }
             }
             else {
-                //TODO 清洁算平台接口
                 s.append(0);
+                if (Main.clearSystem) {
+                    iUserService.Recharge(user_id,s.toString(),datetime,(float) amount,recharge_platform,true);
+                }
             }
             return true;
         } finally {
@@ -460,12 +476,16 @@ public class AccountServiceImpl implements AccountService {
                 blockChainService.InsertBalanceChange(Integer.parseInt(s.toString()),agencyid,user_id,datetime,draw_platform,amount);
             }
             if (draw_platform) {
-                //TODO 清洁算平台接口
                 s.append(1);
+                if (Main.clearSystem) {
+                    iUserService.Withdraw(user_id,datetime,s.toString(),(float) amount,draw_platform,true);
+                }
             }
             else {
-                //TODO 清洁算平台接口
                 s.append(0);
+                if (Main.clearSystem) {
+                    iUserService.Withdraw(user_id,datetime,s.toString(),(float) amount,draw_platform,true);
+                }
             }
             return true;
         } finally {
