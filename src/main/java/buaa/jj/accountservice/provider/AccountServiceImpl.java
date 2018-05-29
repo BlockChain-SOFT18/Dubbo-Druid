@@ -8,6 +8,8 @@ import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class AccountServiceImpl implements AccountService {
     private SqlSessionFactory sqlSessionFactory;
     private BlockChainService blockChainService;
     private IUserService iUserService;
+    private Logger logger = LogManager.getLogger("logger");
 
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
@@ -43,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
      * @exception UserFrozenException 用户被冻结，无法登录
      */
     public int userLogin(String user_name, String user_passwd) {
-        System.out.println("用户：" + user_name + "，密码：" + user_passwd + "，请求登录");
+        logger.info("用户：" + user_name + "，密码：" + user_passwd + "，请求登录");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         int id = accountDao.checkUserExists(mapper,"userName",user_name);
@@ -62,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回机构的ID，如果没有查询到相匹配的用户就返回-1，类型为int
      */
     public int agencyLogin(String agency_name, String agency_passwd) {
-        System.out.println("机构：" + agency_name + "，密码：" + agency_passwd + "，请求登录");
+        logger.info("机构：" + agency_name + "，密码：" + agency_passwd + "，请求登录");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         return accountDao.checkAgencyPasswd(mapper,agency_name,agency_passwd);
@@ -91,7 +94,7 @@ public class AccountServiceImpl implements AccountService {
                             String user_email,
                             String user_identity,
                             int under_agency_id) {
-        System.out.println("用户：" + user_name + "，请求注册");
+        logger.info("用户：" + user_name + "，请求注册");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (accountDao.checkUserExists(mapper,"userName",user_name) != -1) {
@@ -130,7 +133,7 @@ public class AccountServiceImpl implements AccountService {
                             String user_email,
                             String user_identity,
                             String under_agency_name) {
-        System.out.println("用户：" + user_name + "，请求注册");
+        logger.info("用户：" + user_name + "，请求注册");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         int agency_id = accountDao.checkAgencyExists(mapper,"agencyName",under_agency_name);
@@ -158,7 +161,7 @@ public class AccountServiceImpl implements AccountService {
      * @exception UserFrozenException 用户被冻结，无法更改密码
      */
     public boolean userPasswdChanging(int user_id, String old_passwd, String new_passwd) {
-        System.out.println("用户ID：" + user_id + "，请求更改密码");
+        logger.info("用户ID：" + user_id + "，请求更改密码");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         int id = accountDao.checkUserExists(mapper,"userID","" + user_id);
@@ -182,7 +185,7 @@ public class AccountServiceImpl implements AccountService {
      * agentTel，agentEmail，所有均为String类型，如果机构不存在则返回null
      */
     public Map agencyInformation(int agency_id) {
-        System.out.println("请求获得机构：" + agency_id + "的机构信息");
+        logger.info("请求获得机构：" + agency_id + "的机构信息");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         return accountDao.getAgencyInformation(mapper,agency_id);
@@ -194,7 +197,7 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回所有用户的用户ID的List，类型为List<Integer>如果用户不存在则返回null
      */
     public List<Integer> agencyAllUser(int agency_id) {
-        System.out.println("请求获得机构：" + agency_id + "的所有下属用户用户ID");
+        logger.info("请求获得机构：" + agency_id + "的所有下属用户用户ID");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         return accountDao.getAgencyUsers(mapper,agency_id);
@@ -208,7 +211,7 @@ public class AccountServiceImpl implements AccountService {
      * String类型，如果用户不存在则返回null
      */
     public Map userInformation(int user_id) {
-        System.out.println("请求获得用户：" + user_id + "的用户信息");
+        logger.info("请求获得用户：" + user_id + "的用户信息");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         return accountDao.getUserInformation(mapper,user_id);
@@ -222,7 +225,7 @@ public class AccountServiceImpl implements AccountService {
      * @exception UserNotExistException 不存在该ID的用户
      */
     public int freezeUnfreeze(int user_id, boolean if_frozen) {
-        System.out.println(if_frozen?"请求冻结":"请求解冻" + "用户：" + user_id);
+        logger.info(if_frozen?"请求冻结":"请求解冻" + "用户：" + user_id);
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (accountDao.checkUserExists(mapper,"userID",""+user_id) == -1)
@@ -244,7 +247,7 @@ public class AccountServiceImpl implements AccountService {
      * @exception UserFrozenException 用户被冻结，无法找回密码
      */
     public boolean foundPasswd(String user_name, String user_identity, String new_passwd) {
-        System.out.println("用户：" + user_name + "，请求找回密码");
+        logger.info("用户：" + user_name + "，请求找回密码");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         int id = accountDao.checkUserExists(mapper,"userName",user_name);
@@ -268,7 +271,7 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回一个listmap，其中map的key为交易ID，map的value为交易信息
      */
     public List<Map<String, String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type) {
-        System.out.println("请求获取机构：" + agency_id + "的从" + start_date + "到" + end_date + "的交易信息");
+        logger.info("请求获取机构：" + agency_id + "的从" + start_date + "到" + end_date + "的交易信息");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         List<String> idList = accountDao.getTransactionID(mapper,null,agency_id,start_date,end_date,trade_type);
@@ -304,7 +307,7 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回一个listmap，其中map的key为交易ID，map的value为交易信息
      */
     public List<Map<String, String>> userTradeInformation(int user_id, String start_date, String end_date, int trade_type) {
-        System.out.println("请求获取用户：" + user_id + "的从" + start_date + "到" + end_date + "的交易信息");
+        logger.info("请求获取用户：" + user_id + "的从" + start_date + "到" + end_date + "的交易信息");
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         List<String> idList = accountDao.getTransactionID(mapper,user_id,null,start_date,end_date,trade_type);
@@ -352,7 +355,7 @@ public class AccountServiceImpl implements AccountService {
      */
     public boolean transferConsume(int pay_user_id, int get_user_id, double amount, boolean trade_type) {
         String type = trade_type?"消费":"转帐";
-        System.out.println("请求一笔由" + pay_user_id + "支付给" + get_user_id + "的" + type);
+        logger.info("请求一笔由" + pay_user_id + "支付给" + get_user_id + "的" + type);
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (pay_user_id <= 2 || get_user_id <= 2) {
@@ -427,7 +430,7 @@ public class AccountServiceImpl implements AccountService {
      */
     public boolean reCharge(int user_id, double amount, boolean recharge_platform) {
         String type = recharge_platform?"支付宝":"微信";
-        System.out.println("请求一笔由" + user_id + "发起的" + type + "充值，金额：" + amount);
+        logger.info("请求一笔由" + user_id + "发起的" + type + "充值，金额：" + amount);
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         //获取用户信息
@@ -479,7 +482,7 @@ public class AccountServiceImpl implements AccountService {
      */
     public boolean drawMoney(int user_id, double amount, boolean draw_platform) {
         String type = draw_platform?"支付宝":"微信";
-        System.out.println("请求一笔由" + user_id + "发起的" + type + "提现，金额：" + amount);
+        logger.info("请求一笔由" + user_id + "发起的" + type + "提现，金额：" + amount);
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         //获取用户信息

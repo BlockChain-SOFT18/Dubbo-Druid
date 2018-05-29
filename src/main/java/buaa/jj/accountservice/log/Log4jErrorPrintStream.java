@@ -1,4 +1,4 @@
-package buaa.jj.accountservice;
+package buaa.jj.accountservice.log;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,17 +6,17 @@ import org.apache.logging.log4j.Logger;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class Log4jInfoPrintStream extends PrintStream {
+public class Log4jErrorPrintStream extends PrintStream {
 
     private Logger log = LogManager.getLogger("logger");
-    private static Log4jInfoPrintStream printStream = new Log4jInfoPrintStream(System.out);
+    private static Log4jErrorPrintStream printStream = new Log4jErrorPrintStream(System.err);
 
-    private Log4jInfoPrintStream(OutputStream out) {
+    private Log4jErrorPrintStream(OutputStream out) {
         super(out);
     }
 
     public static void redirectSystemOut() {
-        System.setOut(printStream);
+        System.setErr(printStream);
     }
 
     public void print(boolean b) {
@@ -56,38 +56,38 @@ public class Log4jInfoPrintStream extends PrintStream {
     }
 
     public void println(boolean x) {
-        log.info(Boolean.valueOf(x));
+        log.error(Boolean.valueOf(x));
     }
 
     public void println(char x) {
-        log.info(Character.valueOf(x));
+        log.error(Character.valueOf(x));
     }
 
     public void println(char[] x) {
-        log.info(x == null ? null : new String(x));
+        log.error(x == null ? null : new String(x));
     }
 
     public void println(double x) {
-        log.info(Double.valueOf(x));
+        log.error(Double.valueOf(x));
     }
 
     public void println(float x) {
-        log.info(Float.valueOf(x));
+        log.error(Float.valueOf(x));
     }
 
     public void println(int x) {
-        log.info(Integer.valueOf(x));
+        log.error(Integer.valueOf(x));
     }
 
     public void println(long x) {
-        log.info(x);
+        log.error(x);
     }
 
     public void println(Object x) {
-        log.info(x);
+        log.error(x);
     }
 
     public void println(String x) {
-        log.info(x);
+        log.error(x);
     }
 }
