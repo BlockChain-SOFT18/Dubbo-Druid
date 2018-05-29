@@ -400,7 +400,7 @@ public class AccountServiceImpl implements AccountService {
                 //用户消费调用清洁算平台
                 s.append(1);
                 if (Main.clearSystem) {
-                    iUserService.Consume(pay_user_id,get_user_id,datetime,s.toString(),(float) amount,true);
+                    iUserService.Consume(pay_user_id,get_user_id,datetime,s.toString(),amount,true);
                 }
             }
             else {
@@ -458,13 +458,13 @@ public class AccountServiceImpl implements AccountService {
         if (recharge_platform) {
             s.append(1);
             if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,(float) amount,recharge_platform,true);
+                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
             }
         }
         else {
             s.append(0);
             if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,(float) amount,recharge_platform,true);
+                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
             }
         }
         return true;
@@ -509,13 +509,13 @@ public class AccountServiceImpl implements AccountService {
         if (draw_platform) {
             s.append(1);
             if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),(float) amount,draw_platform,true);
+                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
             }
         }
         else {
             s.append(0);
             if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),(float) amount,draw_platform,true);
+                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
             }
         }
         return true;
