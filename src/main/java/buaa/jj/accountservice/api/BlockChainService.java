@@ -1,10 +1,10 @@
 package buaa.jj.accountservice.api;
 
 public interface BlockChainService {
-    String QueryTransaction(int recordId);
-    String QueryBalanceChange(int recordId);
+    String QueryTransaction(String recordId);
+    String QueryBalanceChange(String recordId);
     boolean InsertTransaction(
-            int recordId,
+            String recordId,
             int paymentInstitutionId,
             int paymentUserId,
             int collectionInstitutionId,
@@ -15,7 +15,7 @@ public interface BlockChainService {
 
     );
     boolean InsertBalanceChange(
-            int recordId,
+            String recordId,
             int institutionId,
             int userId,
             String dateTime,

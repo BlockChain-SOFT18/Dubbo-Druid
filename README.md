@@ -116,10 +116,10 @@ public List<Integer> agencyAllUser(int agency_id)
 * 传入用户的ID，返回用户的所有信息，具体的Map格式看返回内容
 * @param user_id 查询的用户的ID，类型为int
 * @return 返回用户的所有信息，userID,userName,userPasswd,userTel,userEmail,
-* userIdentity,agency,availableBalance,frozenBalance,isFrozen，所有均为
+*isFrozen
 * String类型
 */
-public Map userInformation(int user_id)
+public Map userInformation(inisFrozend)
 ```
 ###### freezeUnfreeze
 ```java

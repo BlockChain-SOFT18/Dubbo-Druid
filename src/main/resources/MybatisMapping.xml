@@ -46,11 +46,11 @@
                     </when>
                 </choose>
             </when>
-            <when test="userID != null">
-                AND userID = #{userID}
-            </when>
             <when test="userName != null">
                 AND userName = #{userName}
+            </when>
+            <when test="userID != null">
+                AND userID = #{userID}
             </when>
             <when test="userIdentity != null &amp;&amp; agency!= null">
                 AND userIdentity = #{userIdentity}
@@ -66,7 +66,13 @@
     </select>
 
     <select id="selectUser" resultType="map">
-        SELECT userID,userName,userEmail,userRealName,userTel,userIdentity,agency,availableBalance,frozenBalance,isFrozen
+        SELECT userID,userName,userEmail,userRealName,userTel,userIdentity,agency,availableBalance,frozenBalance,ifFrozen
+        FROM userinformation
+        WHERE userID = #{userID}
+    </select>
+
+    <select id="selectUserIfFrozen" resultType="boolean">
+        SELECT ifFrozen
         FROM userinformation
         WHERE userID = #{userID}
     </select>
@@ -90,7 +96,7 @@
         WHERE agency = #{agency}
     </select>
 
-    <select id="selectTransactionID" parameterType="map" resultType="integer">
+    <select id="selectTransactionID" parameterType="map" resultType="string">
         SELECT transactionID
         FROM transactioninformation
         WHERE transactionDate BETWEEN #{startTime} AND #{endTime}
@@ -101,11 +107,14 @@
             AND (payerUserID = #{userID} OR receiverUserID = #{userID})
         </if>
         <choose>
-            <when test="state == true">
+            <when test="state == 0">
                 AND transactionType = 0
             </when>
+            <when test="state == 1">
+                AND transactionType = 1
+            </when>
             <otherwise>
-                AND transactionType != 0
+                AND transactionType = 2
             </otherwise>
         </choose>
     </select>
@@ -143,9 +152,9 @@
         WHERE userID = #{userID}
     </update>
 
-    <update id="updateIsFrozen">
+    <update id="updateIfFrozen">
         UPDATE userinformation
-        SET isFrozen = #{isFrozen}
+        SET ifFrozen = #{ifFrozen}
         WHERE userID = #{userID}
     </update>
 
@@ -164,10 +173,5 @@
         UPDATE platforminformation
         SET liquidationBalance = liquidationBalance + #{amount}
     </update>
-
-    <resultMap id="User" type="buaa.jj.accountservice.mybatis.User">
-        <id property="id" column="id" />
-        <id property="name" column="name" />
-    </resultMap>
 
 </mapper>
