@@ -14,10 +14,10 @@ public interface AccountService {
     Map agencyInformation(int agency_id);
     List<Integer> agencyAllUser(int agency_id);
     Map userInformation(int user_id);
-    int freezeUnfreeze(int user_id,boolean if_freeze) throws UserNotExsistException;
-    boolean foundPasswd(String user_name,String user_identity,String new_passwd) throws UserNotExsistException;
-    List<Map<Integer,String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type);
-    List<Map<Integer,String>> userTradeInformation(int user_id,String start_date,String end_date,int trade_type);
+    int freezeUnfreeze(int user_id,boolean if_freeze) throws UserNotExistException;
+    boolean foundPasswd(String user_name,String user_identity,String new_passwd) throws UserNotExistException;
+    List<Map<String,String>> agencyTradeInformation(int agency_id, String start_date, String end_date, int trade_type);
+    List<Map<String,String>> userTradeInformation(int user_id,String start_date,String end_date,int trade_type);
     boolean transferConsume(int pay_user_id,int get_user_id,double amount,boolean trade_type);
     boolean reCharge(int user_id,double amount,boolean recharge_platform);
     boolean drawMoney(int user_id,double amount,boolean draw_platform);

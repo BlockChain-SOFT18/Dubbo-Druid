@@ -1,7 +1,6 @@
 package buaa.jj.accountservice.provider;
 
 import buaa.jj.accountservice.mybatis.Mapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +31,7 @@ public class AccountDao {
         Map<String, String> map = new HashMap<String, String>();
         map.put("userName",user_name);
         map.put("userPasswd",passwd);
+
         return mapper.selectUserID(map);
     }
 
@@ -58,6 +58,14 @@ public class AccountDao {
 
     public double getUserBalance(Mapper mapper, int user_id) {
         return mapper.selectUserAvailableBalance(user_id);
+    }
+
+    public Boolean getUserIfFrozen(Mapper mapper, int user_id) {
+        return mapper.selectUserIfFrozen(user_id);
+    }
+
+    public Boolean getUserIfFrozen(Mapper mapper, String user_name) {
+        return mapper.selectUserIfFrozen(user_name);
     }
 
     public void userInsert(Mapper mapper,
@@ -92,7 +100,7 @@ public class AccountDao {
     }
 
     public void updateFrozen(Mapper mapper, int user_id, boolean is_frozen) {
-        mapper.updateIsFrozen(user_id,is_frozen);
+        mapper.updateIfFrozen(user_id,is_frozen);
     }
 
     public void insertTransaction(Mapper mapper,String transactionID,
@@ -106,11 +114,11 @@ public class AccountDao {
         mapper.insertTransaction(transactionID, transactionType, transactionDate, payerAgencyID, payerUserID, receiverAgencyID, receiverUserID, transactionMoney);
     }
 
-    public List<Integer> getTransactionID(Mapper mapper, Integer userID,
+    public List<String> getTransactionID(Mapper mapper, Integer userID,
                                           Integer agencyID,
                                           String startTime,
                                           String endTime,
-                                          Boolean state) {
+                                          int state) {
         return mapper.selectTransactionID(userID, agencyID, startTime, endTime, state);
     }
 

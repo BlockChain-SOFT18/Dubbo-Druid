@@ -19,7 +19,7 @@ public class test {
         context.start();
         AccountService accountService = (AccountService) context.getBean(AccountService.class);
         try {
-            accountService.fun();
+
         } catch (Exception e) {
             if (e instanceof AccountServiceException) {
                 e.printStackTrace();
