@@ -22,4 +22,8 @@ public interface AccountService {
     boolean reCharge(int user_id,double amount,boolean recharge_platform) throws UserNotExistException;
     boolean drawMoney(int user_id,double amount,boolean draw_platform) throws UserNotExistException;
     int getID(String name,boolean type);
+    void CSSystemReady();
+    void BlockChainServiceReady();
+    void CSSystemClosing();
+    void BlockChainServiceClosing();
 }

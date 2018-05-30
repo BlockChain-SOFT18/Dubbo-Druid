@@ -13,5 +13,8 @@
     <dubbo:service interface="buaa.jj.accountservice.api.Druid" ref="druidService"/>
     <dubbo:service interface="buaa.jj.accountservice.api.AccountService" ref="accountService"/>
 
+    <dubbo:reference id="BlockChainService" check="false" interface="blockChainService.api.BlockChainService"/>
+    <dubbo:reference id="CSSystem" check="false" interface="com.altale.service.CSSystem"/>
+
     <!-- dubbo配置 -->
 </beans>

@@ -1,11 +1,11 @@
 package buaa.jj.accountservice.provider;
 
+import blockChainService.api.BlockChainService;
 import buaa.jj.accountservice.Main;
 import buaa.jj.accountservice.api.AccountService;
-import buaa.jj.accountservice.api.BlockChainService;
-import buaa.jj.accountservice.api.IUserService;
 import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
+import com.altale.service.CSSystem;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     private SqlSessionFactory sqlSessionFactory;
     private BlockChainService blockChainService;
-    private IUserService iUserService;
+    private CSSystem csSystem;
     private Logger logger = LogManager.getLogger("logger");
 
     public void setAccountDao(AccountDao accountDao) {
@@ -403,7 +403,7 @@ public class AccountServiceImpl implements AccountService {
                 //用户消费调用清洁算平台
                 s.append(1);
                 if (Main.clearSystem) {
-                    iUserService.Consume(pay_user_id,get_user_id,datetime,s.toString(),amount,true);
+                    //csSystem.Consume(pay_user_id,get_user_id,datetime,s.toString(),amount,true);
                 }
             }
             else {
@@ -461,13 +461,13 @@ public class AccountServiceImpl implements AccountService {
         if (recharge_platform) {
             s.append(1);
             if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
+                //csSystem.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
             }
         }
         else {
             s.append(0);
             if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
+                //csSystem.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
             }
         }
         return true;
@@ -509,17 +509,9 @@ public class AccountServiceImpl implements AccountService {
         if (Main.blockChain) {
             blockChainService.InsertBalanceChange(s.toString(),agencyid,user_id,datetime,draw_platform,amount);
         }
-        if (draw_platform) {
-            s.append(1);
-            if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
-            }
-        }
-        else {
-            s.append(0);
-            if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
-            }
+        s.append(draw_platform?1:0);
+        if (Main.clearSystem) {
+            //csSystem.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
         }
         return true;
     }
@@ -532,6 +524,34 @@ public class AccountServiceImpl implements AccountService {
         } else {
             return accountDao.checkAgencyExists(mapper,"agencyName",name);
         }
+    }
+
+    public void CSSystemReady() {
+        try {
+            csSystem = Main.context.getBean(CSSystem.class);
+            Main.clearSystem = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void BlockChainServiceReady() {
+        try {
+            blockChainService = Main.context.getBean(BlockChainService.class);
+            Main.blockChain = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void CSSystemClosing() {
+        csSystem = null;
+        Main.clearSystem = false;
+    }
+
+    public void BlockChainServiceClosing() {
+        blockChainService = null;
+        Main.blockChain = false;
     }
 
     private String generatorID(StringBuilder s) {
