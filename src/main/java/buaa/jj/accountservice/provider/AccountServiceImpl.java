@@ -238,11 +238,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 传入找回密码的用户的用户名身份证号以及新的密码，如果成功找回密码则返回true
+     * 传入找回密码的用户的用户名身份证号以及新的密码，如果成功找回密码则返回true，
+     * 如果用户名和用户身份验证不一致则返回false
      * @param user_name 找回密码的用户的用户名，类型为String
      * @param user_identity 找回密码的用户的身份证号，类型为String
      * @param new_passwd 找回密码的用户的新密码，类型为String
-     * @return 如果成功查询到返回true
+     * @return 如果成功找回密码则返回true，如果用户名和用户身份验证不一致则返回false
      * @exception UserNotExistException 用户不存在，无法找回密码
      * @exception UserFrozenException 用户被冻结，无法找回密码
      */
@@ -255,8 +256,10 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotExistException();
         } else if (accountDao.getUserIfFrozen(mapper,id)){
             throw new UserFrozenException();
-        } else {
+        } else if (accountDao.checkUserIdentity(mapper,user_name,user_identity)){
             accountDao.updatePasswd(mapper,id,new_passwd);
+        } else {
+            return false;
         }
         return true;
     }
