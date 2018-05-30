@@ -524,6 +524,16 @@ public class AccountServiceImpl implements AccountService {
         return true;
     }
 
+    public int getID(String name,boolean type) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(Mapper.class);
+        if (type) {
+            return accountDao.checkUserExists(mapper,"userName",name);
+        } else {
+            return accountDao.checkAgencyExists(mapper,"agencyName",name);
+        }
+    }
+
     private String generatorID(StringBuilder s) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String datetime = dateFormat.format(new Date());
@@ -535,4 +545,6 @@ public class AccountServiceImpl implements AccountService {
         s.insert(0,stringBuilder.toString());
         return datetime;
     }
+
+
 }
