@@ -3,6 +3,7 @@ package buaa.jj.accountservice;
 
 import buaa.jj.accountservice.log.Log4jErrorPrintStream;
 import buaa.jj.accountservice.log.Log4jInfoPrintStream;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

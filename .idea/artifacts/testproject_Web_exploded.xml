@@ -48,6 +48,7 @@
           <element id="library" level="project" name="Maven: org.junit.jupiter:junit-jupiter-api:5.2.0" />
           <element id="library" level="project" name="Maven: org.junit.platform:junit-platform-commons:1.2.0" />
           <element id="library" level="project" name="Maven: org.opentest4j:opentest4j:1.1.0" />
+          <element id="library" level="project" name="BlockChain-api" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="testproject/web/Web" />

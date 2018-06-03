@@ -403,7 +403,7 @@ public class AccountServiceImpl implements AccountService {
                 //用户消费调用清洁算平台
                 s.append(1);
                 if (Main.clearSystem) {
-                    //csSystem.Consume(pay_user_id,get_user_id,datetime,s.toString(),amount,true);
+                    csSystem.Trade(s.toString(),"" + pay_user_id,"" + get_user_id,amount,datetime);
                 }
             }
             else {
@@ -458,17 +458,9 @@ public class AccountServiceImpl implements AccountService {
             blockChainService.InsertBalanceChange(s.toString(),agencyid,user_id,datetime,recharge_platform,amount);
         }
         //调用清洁算平台提供的充值接口
-        if (recharge_platform) {
-            s.append(1);
-            if (Main.clearSystem) {
-                //csSystem.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
-            }
-        }
-        else {
-            s.append(0);
-            if (Main.clearSystem) {
-                //csSystem.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
-            }
+        s.append(recharge_platform?1:0);
+        if (Main.clearSystem) {
+            csSystem.Recharge(s.toString(),"" + user_id,amount,recharge_platform,datetime);
         }
         return true;
     }
@@ -511,7 +503,7 @@ public class AccountServiceImpl implements AccountService {
         }
         s.append(draw_platform?1:0);
         if (Main.clearSystem) {
-            //csSystem.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
+            csSystem.Withdraw(s.toString(),"" + user_id,amount,draw_platform,datetime);
         }
         return true;
     }

@@ -32,7 +32,7 @@ class AccountServiceImplTest {
 
     @Test
     void userRegister() {
-        System.out.println(accountService.userRegister("jj4",Encrypt.SHA256("123456"),"jj","123456","1901014432@qq.com","411303199711301013","agency2"));
+        System.out.println(accountService.userRegister("jj9",Encrypt.SHA256("123456"),"jj","123456","1901014432@qq.com","411303199711301011","agency2"));
     }
 
     @Test
