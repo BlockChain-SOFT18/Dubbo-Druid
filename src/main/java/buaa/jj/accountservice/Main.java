@@ -3,14 +3,16 @@ package buaa.jj.accountservice;
 
 import buaa.jj.accountservice.log.Log4jErrorPrintStream;
 import buaa.jj.accountservice.log.Log4jInfoPrintStream;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main extends Thread {
 
-    public final static boolean blockChain = false;
-    public final static boolean clearSystem = false;
+    public static boolean blockChain = false;
+    public static boolean clearSystem = false;
+    public static ClassPathXmlApplicationContext context;
 
     @Override
     public void run() {
@@ -18,7 +20,7 @@ public class Main extends Thread {
             setLogPath();
             Log4jInfoPrintStream.redirectSystemOut();
             Log4jErrorPrintStream.redirectSystemOut();
-            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"Druid.xml","Mybatis.xml","Dubbo.xml","Beans.xml"});
+            context = new ClassPathXmlApplicationContext(new String[] {"Druid.xml","Mybatis.xml","Dubbo.xml","Beans.xml"});
             context.start();
             Logger logger = LogManager.getLogger("logger");
             logger.info("Dubbo启动！！");

@@ -1,11 +1,11 @@
 package buaa.jj.accountservice.provider;
 
+import blockChainService.api.BlockChainService;
 import buaa.jj.accountservice.Main;
 import buaa.jj.accountservice.api.AccountService;
-import buaa.jj.accountservice.api.BlockChainService;
-import buaa.jj.accountservice.api.IUserService;
 import buaa.jj.accountservice.exceptions.*;
 import buaa.jj.accountservice.mybatis.Mapper;
+import com.altale.service.CSSystem;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     private SqlSessionFactory sqlSessionFactory;
     private BlockChainService blockChainService;
-    private IUserService iUserService;
+    private CSSystem csSystem;
     private Logger logger = LogManager.getLogger("logger");
 
     public void setAccountDao(AccountDao accountDao) {
@@ -238,11 +238,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 传入找回密码的用户的用户名身份证号以及新的密码，如果成功找回密码则返回true
+     * 传入找回密码的用户的用户名身份证号以及新的密码，如果成功找回密码则返回true，
+     * 如果用户名和用户身份验证不一致则返回false
      * @param user_name 找回密码的用户的用户名，类型为String
      * @param user_identity 找回密码的用户的身份证号，类型为String
      * @param new_passwd 找回密码的用户的新密码，类型为String
-     * @return 如果成功查询到返回true
+     * @return 如果成功找回密码则返回true，如果用户名和用户身份验证不一致则返回false
      * @exception UserNotExistException 用户不存在，无法找回密码
      * @exception UserFrozenException 用户被冻结，无法找回密码
      */
@@ -255,8 +256,10 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotExistException();
         } else if (accountDao.getUserIfFrozen(mapper,id)){
             throw new UserFrozenException();
-        } else {
+        } else if (accountDao.checkUserIdentity(mapper,user_name,user_identity)){
             accountDao.updatePasswd(mapper,id,new_passwd);
+        } else {
+            return false;
         }
         return true;
     }
@@ -400,7 +403,7 @@ public class AccountServiceImpl implements AccountService {
                 //用户消费调用清洁算平台
                 s.append(1);
                 if (Main.clearSystem) {
-                    iUserService.Consume(pay_user_id,get_user_id,datetime,s.toString(),amount,true);
+                    csSystem.Trade(s.toString(),"" + pay_user_id,"" + get_user_id,amount,datetime);
                 }
             }
             else {
@@ -455,17 +458,9 @@ public class AccountServiceImpl implements AccountService {
             blockChainService.InsertBalanceChange(s.toString(),agencyid,user_id,datetime,recharge_platform,amount);
         }
         //调用清洁算平台提供的充值接口
-        if (recharge_platform) {
-            s.append(1);
-            if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
-            }
-        }
-        else {
-            s.append(0);
-            if (Main.clearSystem) {
-                iUserService.Recharge(user_id,s.toString(),datetime,amount,recharge_platform,true);
-            }
+        s.append(recharge_platform?1:0);
+        if (Main.clearSystem) {
+            csSystem.Recharge(s.toString(),"" + user_id,amount,recharge_platform,datetime);
         }
         return true;
     }
@@ -490,6 +485,8 @@ public class AccountServiceImpl implements AccountService {
         //判断用户是否存在
         if (map == null) {
             throw new UserNotExistException();
+        } else if ((Boolean) map.get("ifFrozen")){
+            throw new UserFrozenException();
         } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Integer) map.get("ifFrozen") == 1) {
             return false;
         }
@@ -506,19 +503,49 @@ public class AccountServiceImpl implements AccountService {
         if (Main.blockChain) {
             blockChainService.InsertBalanceChange(s.toString(),agencyid,user_id,datetime,draw_platform,amount);
         }
-        if (draw_platform) {
-            s.append(1);
-            if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
-            }
-        }
-        else {
-            s.append(0);
-            if (Main.clearSystem) {
-                iUserService.Withdraw(user_id,datetime,s.toString(),amount,draw_platform,true);
-            }
+        s.append(draw_platform?1:0);
+        if (Main.clearSystem) {
+            csSystem.Withdraw(s.toString(),"" + user_id,amount,draw_platform,datetime);
         }
         return true;
+    }
+
+    public int getID(String name,boolean type) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Mapper mapper = sqlSession.getMapper(Mapper.class);
+        if (type) {
+            return accountDao.checkUserExists(mapper,"userName",name);
+        } else {
+            return accountDao.checkAgencyExists(mapper,"agencyName",name);
+        }
+    }
+
+    public void CSSystemReady() {
+        try {
+            csSystem = Main.context.getBean(CSSystem.class);
+            Main.clearSystem = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void BlockChainServiceReady() {
+        try {
+            blockChainService = Main.context.getBean(BlockChainService.class);
+            Main.blockChain = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void CSSystemClosing() {
+        csSystem = null;
+        Main.clearSystem = false;
+    }
+
+    public void BlockChainServiceClosing() {
+        blockChainService = null;
+        Main.blockChain = false;
     }
 
     private String generatorID(StringBuilder s) {
@@ -532,4 +559,6 @@ public class AccountServiceImpl implements AccountService {
         s.insert(0,stringBuilder.toString());
         return datetime;
     }
+
+
 }

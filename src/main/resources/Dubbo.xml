@@ -10,8 +10,11 @@
     <dubbo:registry address="zookeeper://140.143.4.171:2181"/>
     <dubbo:protocol name="dubbo" port="20880" />
     <dubbo:monitor protocol="registry" />
-    <dubbo:service interface="buaa.jj.accountservice.api.Druid" ref="druidService"/>
     <dubbo:service interface="buaa.jj.accountservice.api.AccountService" ref="accountService"/>
+    <dubbo:service interface="buaa.jj.accountservice.api.Druid" ref="druidService"/>
+
+    <dubbo:reference id="BlockChainService" check="false" interface="blockChainService.api.BlockChainService"/>
+    <dubbo:reference id="CSSystem" check="false" interface="com.altale.service.CSSystem"/>
 
     <!-- dubbo配置 -->
 </beans>
