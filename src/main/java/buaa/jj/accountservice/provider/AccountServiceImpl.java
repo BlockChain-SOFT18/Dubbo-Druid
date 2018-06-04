@@ -485,6 +485,8 @@ public class AccountServiceImpl implements AccountService {
         //判断用户是否存在
         if (map == null) {
             throw new UserNotExistException();
+        } else if ((Boolean) map.get("ifFrozen")){
+            throw new UserFrozenException();
         } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Integer) map.get("ifFrozen") == 1) {
             return false;
         }

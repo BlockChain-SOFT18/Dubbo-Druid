@@ -2,6 +2,8 @@ package buaa.jj.accountservice.provider;
 
 import buaa.jj.accountservice.Encrypt;
 import buaa.jj.accountservice.api.AccountService;
+import buaa.jj.accountservice.exceptions.UserFrozenException;
+import buaa.jj.accountservice.exceptions.UserNotExistException;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -20,19 +22,52 @@ class AccountServiceImplTest {
 
     @Test
     void userLogin() {
-        System.out.println(accountService.userLogin("jj1",Encrypt.SHA256("123456")));
-        System.out.println(accountService.userLogin("jj",Encrypt.SHA256("123456")));
+        try {
+            int rtn = accountService.userLogin("saf","0bfe935e70c321c7ca3afc75ce0d0ca2f98b5424e008bb31c00c6d7f1f1c0ad6");
+            assert false;
+        } catch (Exception e) {
+            assert e instanceof UserNotExistException;
+        }
+    }
+
+    @Test
+    void userLogin1() {
+        try {
+            int rtn = accountService.userLogin("ac","0bfe935e70c321c7ca3afc75ce0d0ca2f98b5422e008bb31c00c6d7f1f1c0ad7");
+            assert false;
+        } catch (Exception e) {
+            assert e instanceof UserFrozenException;
+        }
+    }
+
+    @Test
+    void userLogin2() {
+        try {
+            int rtn = accountService.userLogin("xyz","0bfe935e70c321c7ca3afc75ce0d0ca2f98b5422e008bb31c00c6d7f1f1c0ad8");
+            assert rtn == -1;
+        } catch (Exception e) {
+            assert false;
+        }
+    }
+
+    @Test
+    void userLogin3() {
+        try {
+            int rtn = accountService.userLogin("xyz","0bfe935e70c321c7ca3afc75ce0d0ca2f98b5422e008bb31c00c6d7f1f1c0ad6");
+            assert rtn == 3;
+        } catch (Exception e) {
+            assert false;
+        }
     }
 
     @Test
     void agencyLogin() {
-        System.out.println(accountService.agencyLogin("agency1",Encrypt.SHA256("123456")));
-        System.out.println(accountService.agencyLogin("agency3",Encrypt.SHA256("123456")));
+
     }
 
     @Test
     void userRegister() {
-        System.out.println(accountService.userRegister("jj9",Encrypt.SHA256("123456"),"jj","123456","1901014432@qq.com","411303199711301011","agency2"));
+
     }
 
     @Test
@@ -41,32 +76,32 @@ class AccountServiceImplTest {
 
     @Test
     void userPasswdChanging() {
-        System.out.println(accountService.userPasswdChanging(4,Encrypt.SHA256("123456"),Encrypt.SHA256("1234567")));
+
     }
 
     @Test
     void agencyInformation() {
-        System.out.println(accountService.agencyInformation(1));
+
     }
 
     @Test
     void agencyAllUser() {
-        System.out.println(accountService.agencyAllUser(2));
+
     }
 
     @Test
     void userInformation() {
-        System.out.println(accountService.userInformation(3));
+
     }
 
     @Test
     void freezeUnfreeze() {
-        System.out.println(accountService.freezeUnfreeze(3,false));
+
     }
 
     @Test
     void foundPasswd() {
-        System.out.println(accountService.foundPasswd("jj","411303199711301015",Encrypt.SHA256("123456")));
+
     }
 
     @Test
@@ -79,37 +114,16 @@ class AccountServiceImplTest {
 
     @Test
     void transferConsume() {
-        accountService.transferConsume(3,4,200,true);
+
     }
 
     @Test
     void reCharge() {
-        accountService.reCharge(5,1,false);
+
     }
 
     @Test
     void drawMoney() {
-        accountService.drawMoney(5,1,true);
-    }
 
-    @Test
-    void cachetest() {
-        System.out.println(accountService.freezeUnfreeze(3,false));
-        System.out.println(accountService.userInformation(3));
-        System.out.println(accountService.reCharge(3,100,true));
-        System.out.println(accountService.userInformation(3));
-        System.out.println(accountService.freezeUnfreeze(3,true));
-        System.out.println(accountService.userInformation(3));
-
-    }
-
-    @Test
-    void a() {
-        //363484.12
-        double a = 36348111111114.12;
-        float b = (float) a;
-        BigDecimal c = new BigDecimal("36348111111114.12");
-
-        System.out.println(a + " " + b + " " + c.compareTo(new BigDecimal("36348111111114.11")));
     }
 }
