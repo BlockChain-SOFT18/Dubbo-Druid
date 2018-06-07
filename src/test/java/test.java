@@ -21,7 +21,7 @@ public class test {
         context.start();
         AccountService accountService = (AccountService) context.getBean(AccountService.class);
         try {
-            System.out.println(accountService.userRegister("jj91",Encrypt.SHA256("123456"),"jj","123456","1901014432@qq.com","411303199711301010","agency2"));
+
         } catch (Exception e) {
             if (e instanceof AccountServiceException) {
                 e.printStackTrace();

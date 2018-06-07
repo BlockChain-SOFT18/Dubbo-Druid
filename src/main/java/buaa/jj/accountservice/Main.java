@@ -40,6 +40,5 @@ public class Main extends Thread {
         logPath = logPath.delete(start,end);
         logPath.append("logs");
         System.setProperty("logPath",logPath.toString());
-        //Configurator.initialize(null,classpath + "log4j2.xml");
     }
 }

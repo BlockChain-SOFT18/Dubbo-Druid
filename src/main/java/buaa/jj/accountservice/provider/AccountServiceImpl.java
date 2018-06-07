@@ -527,6 +527,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.info("CSSystemReady");
     }
 
     public void BlockChainServiceReady() {
@@ -536,16 +537,19 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.info("BlockChainServiceReady");
     }
 
     public void CSSystemClosing() {
         csSystem = null;
         Main.clearSystem = false;
+        logger.info("CSSystemClosing");
     }
 
     public void BlockChainServiceClosing() {
         blockChainService = null;
         Main.blockChain = false;
+        logger.info("BlockChainServiceClosing");
     }
 
     private String generatorID(StringBuilder s) {
