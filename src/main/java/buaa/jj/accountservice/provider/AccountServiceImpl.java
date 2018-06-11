@@ -379,7 +379,7 @@ public class AccountServiceImpl implements AccountService {
             //判断用户是否存在以及是否有足够的可用余额
             if (map1 == null || map2 == null) {
                 throw new UserNotExistException();
-            } else if (((BigDecimal) map1.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Boolean) map2.get("ifFrozen")) {
+            } else if (((BigDecimal) map1.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 || (Boolean) map2.get("ifFrozen")) {
                 return false;
             } else if ((Boolean) map1.get("ifFrozen")) {
                 throw new UserFrozenException();
@@ -485,7 +485,7 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotExistException();
         } else if ((Boolean) map.get("ifFrozen")){
             throw new UserFrozenException();
-        } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Integer) map.get("ifFrozen") == 1) {
+        } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 || (Boolean) map.get("ifFrozen")) {
             return false;
         }
         //生成交易ID
