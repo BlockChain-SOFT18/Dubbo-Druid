@@ -20,7 +20,7 @@ public interface AccountService {
     List<Map<String,String>> userTradeInformation(int user_id,String start_date,String end_date,int trade_type);
     boolean transferConsume(int pay_user_id,int get_user_id,double amount,boolean trade_type) throws UserNotExistException,UserFrozenException;
     boolean reCharge(int user_id,double amount,boolean recharge_platform) throws UserNotExistException;
-    boolean drawMoney(int user_id,double amount,boolean draw_platform) throws UserNotExistException;
+    boolean drawMoney(int user_id,double amount,boolean draw_platform) throws UserNotExistException,UserFrozenException;
     int getID(String name,boolean type);
     void CSSystemReady();
     void BlockChainServiceReady();

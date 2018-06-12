@@ -342,11 +342,10 @@ public class AccountServiceImpl implements AccountService {
      * 转帐消费函数，传入支付方和收款方以及金额，如果支付方和收款方有一方为平台账
      * 户或者清洁算账户则不进行交易记录，如果说双方均为普通用户，则首先根据用户的
      * 余额判断是否可以进行本次交易以及账户是否被冻结，如果没问题则根据时间和交易
-     * 信息生成交易ID然后将交易记录插入数据库以及区块链，如果是消费则调用清算平台
-     * 的消费接口，清算平台将会调用本方法，并且扣除支付方金额到清算账户，如果是转
-     * 帐则扣除支付方余额增加收款方余额
-     * 清算平台在清算过程中会将清算账户中的余额转到各个收款方账户中，并且将最终的
-     * 手续费转到平台余额中
+     * 信息生成交易ID然后将交易记录插入数据库以及区块链，如果是消费则扣除支付方金
+     * 额到清算账户并调用清算平台的消费接口，如果是转帐则扣除支付方余额增加收款方
+     * 余额，清算平台在清算过程中会将清算账户中的余额转到各个收款方账户中，并且将
+     * 最终的手续费转到平台余额中
      * @param pay_user_id 支付方用户ID，其中1为平台账户，2为清洁算账户
      * @param get_user_id 收款方用户ID，其中1为平台账户，2为清洁算账户
      * @param amount 支付金额
@@ -363,11 +362,7 @@ public class AccountServiceImpl implements AccountService {
         Mapper mapper = sqlSession.getMapper(Mapper.class);
         if (pay_user_id <= 2 || get_user_id <= 2) {
             //清洁算平台调用部分
-            if (pay_user_id > 2 && get_user_id == 2) {
-                //消费时清洁算平台调用扣除费用
-                accountDao.minusBalance(mapper,pay_user_id,amount);
-                accountDao.addLiquidationBalance(mapper,amount);
-            } else if (pay_user_id == 2 && get_user_id == 1) {
+            if (pay_user_id == 2 && get_user_id == 1) {
                 //清洁算时清洁算平台调用转帐到平台收入
                 accountDao.minusLiquidationBalance(mapper,amount);
                 accountDao.addPlatformBalance(mapper,amount);
@@ -384,7 +379,7 @@ public class AccountServiceImpl implements AccountService {
             //判断用户是否存在以及是否有足够的可用余额
             if (map1 == null || map2 == null) {
                 throw new UserNotExistException();
-            } else if (((BigDecimal) map1.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Boolean) map2.get("ifFrozen")) {
+            } else if (((BigDecimal) map1.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 || (Boolean) map2.get("ifFrozen")) {
                 return false;
             } else if ((Boolean) map1.get("ifFrozen")) {
                 throw new UserFrozenException();
@@ -400,8 +395,10 @@ public class AccountServiceImpl implements AccountService {
             s.append(get_user_id);
             String datetime = generatorID(s);
             if (trade_type) {
-                //用户消费调用清洁算平台
+                //用户扣费到清算账户并调用清洁算平台
                 s.append(1);
+                accountDao.minusBalance(mapper,pay_user_id,amount);
+                accountDao.addLiquidationBalance(mapper,amount);
                 if (Main.clearSystem) {
                     csSystem.Trade(s.toString(),"" + pay_user_id,"" + get_user_id,amount,datetime);
                 }
@@ -466,14 +463,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 提现接口，传入用户id金额以及提现平台，如果用户不存在则丢出异常，如果用户的
-     * 账户被冻结则返回false，没有问题则根据时间和交易信息生成交易ID，并将交易计
-     * 入数据库和区块链，最后调用清算平台的充值接口并返回true
-     * @param user_id 充值的用户ID
-     * @param amount 充值金额
+     * 提现接口，传入用户id金额以及提现平台，如果用户不存在或被冻结则丢出异常，
+     * 账户余额不足则返回false，没有问题则根据时间和交易信息生成交易ID，并将交
+     * 易计入数据库和区块链，最后调用清算平台的提现接口并返回true
+     * @param user_id 提现的用户ID
+     * @param amount 提现金额
      * @param draw_platform 提现平台，false为微信，true为支付宝
-     * @return 如果用户帐户被冻结则返回false，如果充值成功则返回true
-     * @exception UserNotExistException 用户不存在，无法充值
+     * @return 如果用户帐户余额不足则返回false，如果提现成功则返回true
+     * @exception UserNotExistException 用户不存在，无法提现
+     * @exception UserFrozenException 用户被冻结，无法提现
      */
     public boolean drawMoney(int user_id, double amount, boolean draw_platform) {
         String type = draw_platform?"支付宝":"微信";
@@ -487,7 +485,7 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotExistException();
         } else if ((Boolean) map.get("ifFrozen")){
             throw new UserFrozenException();
-        } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 && (Integer) map.get("ifFrozen") == 1) {
+        } else if (((BigDecimal) map.get("availableBalance")).compareTo(new BigDecimal(amount)) == -1 || (Boolean) map.get("ifFrozen")) {
             return false;
         }
         //生成交易ID
@@ -527,6 +525,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.info("CSSystemReady");
     }
 
     public void BlockChainServiceReady() {
@@ -536,16 +535,19 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.info("BlockChainServiceReady");
     }
 
     public void CSSystemClosing() {
         csSystem = null;
         Main.clearSystem = false;
+        logger.info("CSSystemClosing");
     }
 
     public void BlockChainServiceClosing() {
         blockChainService = null;
         Main.blockChain = false;
+        logger.info("BlockChainServiceClosing");
     }
 
     private String generatorID(StringBuilder s) {

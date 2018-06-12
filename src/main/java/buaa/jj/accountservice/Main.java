@@ -1,6 +1,7 @@
 package buaa.jj.accountservice;
 
 
+import buaa.jj.accountservice.api.AccountService;
 import buaa.jj.accountservice.log.Log4jErrorPrintStream;
 import buaa.jj.accountservice.log.Log4jInfoPrintStream;
 import com.alibaba.druid.pool.DruidDataSource;
@@ -24,6 +25,15 @@ public class Main extends Thread {
             context.start();
             Logger logger = LogManager.getLogger("logger");
             logger.info("Dubbo启动！！");
+            try {
+                context.getBean(AccountService.class).CSSystemReady();
+            } catch (Exception e) {
+                context.getBean(AccountService.class).CSSystemClosing();
+            }try {
+                context.getBean(AccountService.class).BlockChainServiceReady();
+            } catch (Exception e) {
+                context.getBean(AccountService.class).BlockChainServiceClosing();
+            }
             while (true) {
                 throw new RuntimeException();
             }
@@ -40,6 +50,5 @@ public class Main extends Thread {
         logPath = logPath.delete(start,end);
         logPath.append("logs");
         System.setProperty("logPath",logPath.toString());
-        //Configurator.initialize(null,classpath + "log4j2.xml");
     }
 }
